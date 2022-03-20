@@ -92,15 +92,19 @@ Graph length 12
 ```
 
 
-3. Download a file over http (currently https is not working), parse and serialize it.
-put the foaf_modified.n3 (original foaf file has some special characters which are causing problems for parsing) file on a folder on your PC and run a simple HTTP Server to make it accessible on web.
-On your PC:
+3. Download a file over http (**currently https is not working and needs debugging**), parse and serialize it.
+
+Download and put the modified [foaf.n3](https://raw.githubusercontent.com/ksingh25/Files/main/foaf.n3) file in some folder on your PC. Then run a simple HTTP Server to make it accessible on web. Original foaf file has some special characters which are causing problems for parsing.
+
+On your PC `cd` to the folder containing foaf.n3 file and start the server:
 
 `sudo python -m SimpleHTTPServer 80`
 
 Now to the ESP32 (using picocom)
 
-Please put the ip address of the local pc hosting modified foaf.n3 in the file example_parse_foaf.py and upload it to ESP32.
+Please put the ip address of the local pc (hosting modified foaf.n3) in the file example_parse_foaf.py and upload it to ESP32.
+
+`picocom -b 115200 /dev/ttyUSB0`
 
 connect to WiFi
 ```
@@ -109,5 +113,5 @@ network config: ('192.168.0.20', '255.255.255.0', '192.168.0.254', '212.27.40.24
 >>> execfile('example_parse_foaf.py')
 ...
 ```
-This download the whole foaf.n3, parses it and prints the triples on the terminal.
+This downloads the whole foaf.n3, parses it and prints the triples on the terminal.
 
