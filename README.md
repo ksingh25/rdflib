@@ -24,32 +24,41 @@ and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 ## ESP32
 To test it on ESP32, please install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf), download [micropython code](https://github.com/micropython/micropython) 
 cd to `micropython/ports/esp32` directory and then compile and flash the firware
+check some intial steps [here](https://github.com/micropython/micropython/tree/master/ports/esp32/README.md)
+
+Some steps are given here :
+```
+$ cd micropython
+$ make -C mpy-cross
+```
+
+Then to build MicroPython for the ESP32 run (assuming IDF is already installed):
 
 ```
-idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  fullclean
-make submodules
-make BOARD=GENERIC_SPIRAM
-idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 erase_flash
-idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 flash`
+$ cd ports/esp32
+$ make submodules
+$ make BOARD=GENERIC_SPIRAM
+$ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 erase_flash
+$ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 flash`
 ```
 
 ## Upload files on ESP32
 You may skip this step if you just need to test it on Linux with micropython.
 The step is to upload the files on ESP32. 
 ```
-git clone https://github.com/ksingh25/mrdflib.git
-cd mRDFLib
-````
+$ git clone https://github.com/ksingh25/mrdflib.git
+$ cd mRDFLib
+```
 Upload all the files manually or use the copy.py script or WebREPL over WiFi. Uploading files over UART takes around 7 to 10 minutes. 
 mRDFLib is around 800KB and thus the next step will be to reduce its size.
 
 Assuming that the port is /dev/ttyUSB0:
 
-`python3 copy.py /dev/ttyUSB0`
+`$ python3 copy.py /dev/ttyUSB0`
 
 or copy them one by one using ampy:
 ```
-ampy --port /dev/ttyACM0 --baud 115200 run wlan.py
+$ ampy --port /dev/ttyACM0 --baud 115200 run wlan.py
 ...
 
 
@@ -57,7 +66,7 @@ ampy --port /dev/ttyACM0 --baud 115200 run wlan.py
 ## Test some examples
 You may enter the terminal using picocom.
 
-`picocom -b 115200 /dev/ttyUSB0`
+`$ picocom -b 115200 /dev/ttyUSB0`
 
 1. Add some facts to the graph and serialize them in different formats.
 ```
