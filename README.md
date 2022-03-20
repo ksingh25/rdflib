@@ -43,6 +43,17 @@ cd mRDFLib
 Upload all the files manually or use the copy.py script or WebREPL over WiFi. Uploading files over UART takes around 7 to 10 minutes. 
 mRDFLib is around 800KB and thus the next step will be to reduce its size.
 
+Assuming that the port is /dev/ttyUSB0:
+
+`python3 copy.py /dev/ttyUSB0`
+
+or copy them one by one using ampy:
+```
+ampy --port /dev/ttyACM0 --baud 115200 run wlan.py
+...
+
+
+
 ## Test some examples
 You may enter the terminal using picocom.
 
