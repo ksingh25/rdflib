@@ -1,16 +1,16 @@
 # mrdflib
-mRDFLib is a port of RDFLib for micropython for working with RDF. 
-It is a work in progress and the idea is to make the code as small as possible. 
+mRDFLib is a port of [RDFLib](https://github.com/RDFLib/rdflib) for micropython for working with RDF. 
+It is a work in progress and the goal is to make the code as well as memory footprint as small as possible. 
 Currently XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not supported. 
 
-mRDFLib has been tested by compiling micropython on Linux and ESP32 (with 4MB PSRAM).
+mRDFLib has been tested by compiling [micropython](https://github.com/micropython/micropython) on Linux and ESP32 (with 4MB PSRAM).
 
 ## Prerequisites
-To test is quickly you need either linux with python3 or ESP32 with 4MB of SPIRAM. 
-For testing over ESP32, one needs to install IDF (tested with v4.0.2, adafruit-ampy, picocom).
+To test it quickly, one either needs linux with python3 or ESP32 with 4MB of SPIRAM. 
+For testing over ESP32, one needs to install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf), adafruit-ampy, picocom).
 
 ## Linux 
-To test it on Linux, please compile the micropython with advanced REGEX options enabled. This can be done by modifying
+To test it on Linux, please compile the [micropython](https://github.com/micropython/micropython) with advanced REGEX options enabled. This can be done by modifying
 micropython/ports/unix/mpconfigport.h
 
 and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
@@ -22,7 +22,7 @@ and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 ```
 
 ## ESP32
-To test it on ESP32, please install idf framework (tested with IDF v4.0.2), download micropython code, 
+To test it on ESP32, please install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf), download [micropython code](https://github.com/micropython/micropython) 
 cd to `micropython/ports/esp32` directory and then compile and flash the firware
 
 ```
@@ -37,7 +37,7 @@ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 
 You may skip this step if you just need to test it on Linux with micropython.
 The step is to upload the files on ESP32. 
 ```
-git clone 
+git clone https://github.com/ksingh25/mrdflib.git
 cd mRDFLib
 ````
 Upload all the files manually or use the copy.py script or WebREPL over WiFi. Uploading files over UART takes around 7 to 10 minutes. 
@@ -92,9 +92,10 @@ Graph length 12
 ```
 
 
-3. Download a file over http (currently hrrps is not working), parse and serialize it.
+3. Download a file over http (currently https is not working), parse and serialize it.
 put the foaf_modified.n3 (original foaf file has some special characters which are causing problems for parsing) file on a folder on your PC and run a simple HTTP Server to make it accessible on web.
 On your PC:
+
 `sudo python -m SimpleHTTPServer 80`
 
 Now to the ESP32 (using picocom)
