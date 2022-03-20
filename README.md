@@ -56,7 +56,7 @@ Then compile micropython firmware and flash the ESP32.
 $ make submodules
 $ make BOARD=GENERIC_SPIRAM
 $ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 erase_flash
-$ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 flash`
+$ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 flash
 ```
 
 ## Upload mRDFLib files on ESP32
