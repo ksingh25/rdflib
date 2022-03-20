@@ -3,7 +3,7 @@ import time
 import sys
 
 if len(sys.argv) != 2:
-	print("Usage (assuming USB0): Python3 copy.py /dev/ttyUSB0")
+	print("Usage (assuming USB0): python3 copy.py /dev/ttyUSB0")
 	quit()
 
 dev = str(sys.argv[1])
@@ -11,9 +11,9 @@ t0 = time.time()
 files = os.listdir('.')
 
 print("-----------------------------------------------------")
-print("Big folders will take lot of time at 115200 baud rate!")
-print("rdflib folder currently takes around 6 mn.")
-print("If  MCU gets stuck then you copy the rest using ampy")
+print("Big folders will take a lot of time at 115200 baud rate!")
+print("rdflib folder currently takes around 6 - 10 mn.")
+print("If  MCU gets stuck then one should copy the rest using ampy or reformat and relaunch this command.")
 print("----------------------------------------------------")
 
 for file in list(files):
