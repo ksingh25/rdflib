@@ -12,14 +12,14 @@ else:
     except ImportError:
         import simplejson as json
 
-from posixpath import sep
-from posixpath import normpath
+##from posixpath import sep
+##from posixpath import normpath
 
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from rdflib.parser import create_input_source, PythonInputSource, StringInputSource
 
-from io import TextIOBase, TextIOWrapper
+##from io import TextIOBase, TextIOWrapper
 
 
 def source_to_json(source):
@@ -36,10 +36,10 @@ def source_to_json(source):
     stream = source.getByteStream()
     try:
         # Use character stream as-is, or interpret byte stream as UTF-8
-        if isinstance(stream, TextIOBase):
-            use_stream = stream
-        else:
-            use_stream = TextIOWrapper(stream, encoding="utf-8")
+        ##if isinstance(stream, TextIOBase):
+        use_stream = stream
+        ##else:
+        ##    use_stream = TextIOWrapper(stream, encoding="utf-8")
         return json.load(use_stream)
     finally:
         stream.close()

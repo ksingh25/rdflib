@@ -13,8 +13,8 @@ See also rdflib.plugin
 from typing import IO, TYPE_CHECKING, Optional
 from rdflib.term import URIRef
 
-if TYPE_CHECKING:
-    from rdflib.graph import Graph
+##if TYPE_CHECKING:
+##    from rdflib.graph import Graph
 
 __all__ = ["Serializer"]
 

@@ -1,6 +1,7 @@
 from rdflib.namespace import RDF
 from rdflib.term import BNode, URIRef
-from random import randint
+import random
+##from random import uniform ##randint
 
 __all__ = ["Container", "Bag", "Seq", "Alt", "NoElementException"]
 
@@ -233,7 +234,8 @@ class Alt(Container):
         if len(self) == 0:
             raise NoElementException()
         else:
-            p = randint(1, len(self))
+            ##p = randint(1, len(self))
+            p = random.getrandbits(32)%(len(self))
             item = self.__getitem__(p)
             return item
 

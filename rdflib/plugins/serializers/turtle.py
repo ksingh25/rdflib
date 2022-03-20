@@ -123,7 +123,6 @@ class RecursiveSerializer(Serializer):
             else:
                 for prefix, ns in self.store.namespaces():
                     self.addNamespace(prefix, ns)
-
     def buildPredicateHash(self, subject):
         """
         Build a hash key by predicate to a list of objects for the given
@@ -142,7 +141,6 @@ class RecursiveSerializer(Serializer):
         # Sort object lists
         for prop, objects in properties.items():
             objects.sort(key=cmp_to_key(_object_comparator))
-
         # Make sorted list of properties
         propList = []
         seen = {}
@@ -274,14 +272,14 @@ class TurtleSerializer(RecursiveSerializer):
             return None
 
         parts = None
-
+        parts = self.store.compute_qname(uri, generate=gen_prefix)
         try:
             parts = self.store.compute_qname(uri, generate=gen_prefix)
         except:
 
             # is the uri a namespace in itself?
             pfx = self.store.store.prefix(uri)
-
+            
             if pfx is not None:
                 parts = (pfx, uri, "")
             else:
@@ -303,7 +301,7 @@ class TurtleSerializer(RecursiveSerializer):
     def startDocument(self):
         self._started = True
         ns_list = sorted(self.namespaces.items())
-
+        
         if self.base:
             self.write(self.indent() + "@base <%s> .\n" % self.base)
         for prefix, uri in ns_list:

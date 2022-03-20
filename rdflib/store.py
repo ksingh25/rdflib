@@ -1,11 +1,11 @@
 from io import BytesIO
-import pickle
+#import pickle
 from rdflib.events import Dispatcher, Event
 from typing import Tuple, TYPE_CHECKING, Iterable, Optional
 
-if TYPE_CHECKING:
-    from rdflib.term import Node, IdentifiedNode
-    from rdflib.graph import Graph
+##if TYPE_CHECKING:
+##    from rdflib.term import Node
+##    from rdflib.graph import Graph
 
 """
 ============
@@ -42,9 +42,9 @@ NO_STORE = -1
 UNKNOWN = None
 
 
-Pickler = pickle.Pickler
-Unpickler = pickle.Unpickler
-UnpicklingError = pickle.UnpicklingError
+##Pickler = pickle.Pickler
+##Unpickler = pickle.Unpickler
+##UnpicklingError = pickle.UnpicklingError
 
 __all__ = [
     "StoreCreatedEvent",
@@ -104,19 +104,21 @@ class NodePickler(object):
         self._ids[object] = id
 
     def loads(self, s):
-        up = Unpickler(BytesIO(s))
-        up.persistent_load = self._get_object
-        try:
-            return up.load()
-        except KeyError as e:
-            raise UnpicklingError("Could not find Node class for %s" % e)
+        ##up = Unpickler(BytesIO(s))
+        print("store.Nodepickler.load TODO")
+        #up.persistent_load = self._get_object
+        #try:
+        #    return up.load()
+        #except KeyError as e:
+        #    raise UnpicklingError("Could not find Node class for %s" % e)
 
     def dumps(self, obj, protocol=None, bin=None):
         src = BytesIO()
-        p = Pickler(src)
-        p.persistent_id = self._get_ids
-        p.dump(obj)
-        return src.getvalue()
+        print("store.Nodepickler.dumps TODO")
+        ##p = Pickler(src)
+        ##p.persistent_id = self._get_ids
+        ##p.dump(obj)
+        ##return src.getvalue()
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -151,8 +153,7 @@ class Store(object):
         if configuration:
             self.open(configuration)
 
-    @property
-    def node_pickler(self):
+    def __get_node_pickler(self):
         if self.__node_pickler is None:
             from rdflib.term import URIRef
             from rdflib.term import BNode
@@ -169,6 +170,8 @@ class Store(object):
             np.register(QuotedGraph, "Q")
             np.register(Variable, "V")
         return self.__node_pickler
+
+    node_pickler = property(__get_node_pickler)
 
     # Database management methods
     def create(self, configuration):
@@ -292,9 +295,7 @@ class Store(object):
 
     def triples(
         self,
-        triple_pattern: Tuple[
-            Optional["IdentifiedNode"], Optional["IdentifiedNode"], Optional["Node"]
-        ],
+        triple_pattern: Tuple[Optional["Node"], Optional["Node"], Optional["Node"]],
         context=None,
     ):
         """

@@ -8,39 +8,6 @@ rdflib package.
 
 The primary interface `rdflib` exposes to work with RDF is
 `rdflib.graph.Graph`.
-
-A tiny example:
-
-    >>> from rdflib import Graph, URIRef, Literal
-
-    >>> g = Graph()
-    >>> result = g.parse("http://www.w3.org/2000/10/swap/test/meet/blue.rdf")
-
-    >>> print("graph has %s statements." % len(g))
-    graph has 4 statements.
-    >>>
-    >>> for s, p, o in g:
-    ...     if (s, p, o) not in g:
-    ...         raise Exception("It better be!")
-
-    >>> s = g.serialize(format='nt')
-    >>>
-    >>> sorted(g) == [
-    ...  (URIRef("http://meetings.example.com/cal#m1"),
-    ...   URIRef("http://www.example.org/meeting_organization#homePage"),
-    ...   URIRef("http://meetings.example.com/m1/hp")),
-    ...  (URIRef("http://www.example.org/people#fred"),
-    ...   URIRef("http://www.example.org/meeting_organization#attending"),
-    ...   URIRef("http://meetings.example.com/cal#m1")),
-    ...  (URIRef("http://www.example.org/people#fred"),
-    ...   URIRef("http://www.example.org/personal_details#GivenName"),
-    ...   Literal("Fred")),
-    ...  (URIRef("http://www.example.org/people#fred"),
-    ...   URIRef("http://www.example.org/personal_details#hasEmail"),
-    ...   URIRef("mailto:fred@example.com"))
-    ... ]
-    True
-
 """
 __docformat__ = "restructuredtext en"
 
@@ -58,6 +25,21 @@ __all__ = [
     "Dataset",
     "Graph",
     "ConjunctiveGraph",
+    "RDF",
+    "RDFS",
+    "OWL",
+    "XSD",
+    "FOAF",
+    "SKOS",
+    "DOAP",
+    "DC",
+    "DCTERMS",
+    "VOID",
+    "util",
+    "SSN",
+    "SOSA",
+]
+"""
     "BRICK",
     "CSVW",
     "DC",
@@ -74,7 +56,7 @@ __all__ = [
     "QB",
     "RDF",
     "RDFS",
-    "SDO",
+    ##"SDO",
     "SH",
     "SKOS",
     "SOSA",
@@ -85,11 +67,11 @@ __all__ = [
     "XSD",
     "util",
 ]
-
+"""
 import sys
-import logging
+#import logging
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 try:
     import __main__
@@ -97,12 +79,16 @@ try:
     if (
         not hasattr(__main__, "__file__")
         and sys.stdout is not None
-        and sys.stderr.isatty()
+        ##and sys.stderr.isatty()
     ):
-        # show log messages in interactive mode
-        logger.setLevel(logging.INFO)
-        logger.addHandler(logging.StreamHandler())
+        ## show log messages in interactive mode
+        print("Warning: First import takes long time. After that it is much faster")
+        print("Warning: Currently __file__ is not supported")
+  ##      logger.setLevel(logging.INFO)
+  ##      logger.addHandler(logging.StreamHandler())
+  
     del __main__
+
 except ImportError:
     # Main already imported from elsewhere
     import warnings
@@ -164,6 +150,20 @@ from rdflib import plugin
 from rdflib import query
 
 from rdflib.namespace import (
+    RDF,
+    RDFS,
+    OWL,
+    XSD,
+    FOAF,
+    SKOS,
+    DOAP,
+    DC,
+    DCTERMS,
+    VOID,
+    SSN,
+    SOSA,
+)
+"""
     BRICK,
     CSVW,
     DC,
@@ -180,7 +180,7 @@ from rdflib.namespace import (
     QB,
     RDF,
     RDFS,
-    SDO,
+    ##SDO,
     SH,
     SKOS,
     SOSA,
@@ -191,7 +191,7 @@ from rdflib.namespace import (
     XMLNS,
     XSD,
     Namespace,
-)
+"""
 
 # tedious sop to flake8
 assert plugin

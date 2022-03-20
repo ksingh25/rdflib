@@ -571,9 +571,15 @@ class Context(object):
             term = term.get(ID)
         return term
 
-
+"""
 Term = namedtuple(
     "Term",
     "id, name, type, container, index, language, reverse, context," "prefix, protected",
 )
-Term.__new__.__defaults__ = (UNDEF, UNDEF, UNDEF, UNDEF, False, UNDEF, False, False)  # type: ignore[attr-defined]
+"""
+Term = namedtuple(
+    "Term", ("id", "name", "type", "container", "index", "language", "reverse", "context", "prefix", "protected")
+)
+##FIXME
+##print("Warning: FIXME shared/jsonld/context.py Term.__new__")
+##Term.__new__.__defaults__ = (UNDEF, UNDEF, UNDEF, UNDEF, False, UNDEF, False, False)  # type: ignore[attr-defined]

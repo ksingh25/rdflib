@@ -298,13 +298,9 @@ class Resource(object):
         self._graph = graph
         self._identifier = subject
 
-    @property
-    def graph(self):
-        return self._graph
+    graph = property(lambda self: self._graph)
 
-    @property
-    def identifier(self):
-        return self._identifier
+    identifier = property(lambda self: self._identifier)
 
     def __hash__(self):
         return hash(Resource) ^ hash(self._graph) ^ hash(self._identifier)

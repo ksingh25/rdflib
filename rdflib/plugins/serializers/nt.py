@@ -9,8 +9,8 @@ from rdflib.graph import Graph
 from rdflib.term import Literal
 from rdflib.serializer import Serializer
 
-import warnings
-import codecs
+##import warnings
+##import codecs
 
 __all__ = ["NTSerializer"]
 
@@ -31,9 +31,11 @@ class NTSerializer(Serializer):
         **args,
     ):
         if base is not None:
-            warnings.warn("NTSerializer does not support base.")
+            #warnings.warn("NTSerializer does not support base.")
+            print("Warning: NTSerializer does not support base.")
         if encoding != "utf-8":
-            warnings.warn(
+            ##warnings.warn(
+            print(
                 "NTSerializer always uses UTF-8 encoding. "
                 f"Given encoding was: {encoding}"
             )
@@ -102,4 +104,4 @@ def _nt_unicode_error_resolver(err):
     return "".join(_replace_single(c) for c in string), err.end
 
 
-codecs.register_error("_rdflib_nt_escape", _nt_unicode_error_resolver)
+#codecs.register_error("_rdflib_nt_escape", _nt_unicode_error_resolver)

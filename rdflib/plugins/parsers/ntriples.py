@@ -6,17 +6,18 @@ License: GPL 2, W3C, BSD, or MIT
 Author: Sean B. Palmer, inamidst.com
 """
 
-import codecs
 import re
-from io import BytesIO, StringIO, TextIOBase
+import codecs
 from typing import IO, TYPE_CHECKING, Optional, Pattern, TextIO, Union
 
-from rdflib.compat import _string_escape_map, decodeUnicodeEscape
+from rdflib.term import Node, URIRef as URI
+from rdflib.term import BNode as bNode
+from rdflib.term import Literal
+from rdflib.compat import decodeUnicodeEscape, _string_escape_map
 from rdflib.exceptions import ParserError as ParseError
 from rdflib.parser import InputSource, Parser
-from rdflib.term import BNode as bNode
-from rdflib.term import Literal, Node
-from rdflib.term import URIRef as URI
+
+from io import StringIO, TextIOBase, BytesIO
 
 if TYPE_CHECKING:
     from rdflib.graph import Graph

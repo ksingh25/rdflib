@@ -10,12 +10,19 @@ want to do so through the Graph class parse method.
 
 """
 
-import codecs
+##import codecs
 import os
 import pathlib
 import sys
 
-from io import BytesIO, RawIOBase, TextIOBase, TextIOWrapper, StringIO, BufferedIOBase
+from io import (
+    BytesIO, 
+    ##RawIOBase, 
+    ##TextIOBase, 
+    TextIOWrapper, 
+    StringIO, 
+    ##BufferedIOBase,
+)
 from typing import (
     IO,
     Any,
@@ -27,19 +34,20 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from urllib.request import Request
-from urllib.request import url2pathname
-from urllib.request import urlopen
-from urllib.error import HTTPError
+##request -->urequest
+from urllib.urequests import Request
+from urllib.urequests import url2pathname
+from urllib.urequests import urlopen
+##from urllib.error import HTTPError
 
-from xml.sax import xmlreader
-
+##from xml.sax import xmlreader
+from inputsource import InputSource
 from rdflib import __version__
 from rdflib.term import URIRef
 from rdflib.namespace import Namespace
 
-if TYPE_CHECKING:
-    from rdflib import Graph
+##if TYPE_CHECKING:
+##    from rdflib import Graph
 
 __all__ = [
     "Parser",
@@ -57,10 +65,10 @@ class Parser(object):
     def __init__(self):
         pass
 
-    def parse(self, source: "InputSource", sink: "Graph"):
+    def parse(self, source, sink):#: "InputSource", sink: "Graph"):
         pass
 
-
+"""
 class BytesIOWrapper(BufferedIOBase):
     __slots__ = ("wrapped", "encoded", "encoding")
 
@@ -72,14 +80,15 @@ class BytesIOWrapper(BufferedIOBase):
 
     def read(self, *args, **kwargs):
         if self.encoded is None:
-            b, blen = codecs.getencoder(self.encoding)(self.wrapped)
-            self.encoded = BytesIO(b)
+            ##b, blen = codecs.getencoder(self.encoding)(self.wrapped)
+            ##self.encoded = BytesIO(b)
+            print("TODO")
         return self.encoded.read(*args, **kwargs)
 
     def read1(self, *args, **kwargs):
         if self.encoded is None:
-            b = codecs.getencoder(self.encoding)(self.wrapped)
-            self.encoded = BytesIO(b)
+            print("TODO")##b = codecs.getencoder(self.encoding)(self.wrapped)
+            ##self.encoded = BytesIO(b)
         return self.encoded.read1(*args, **kwargs)
 
     def readinto(self, *args, **kwargs):
@@ -91,14 +100,12 @@ class BytesIOWrapper(BufferedIOBase):
     def write(self, *args, **kwargs):
         raise NotImplementedError()
 
+"""
 
-class InputSource(xmlreader.InputSource, object):
-    """
-    TODO:
-    """
+"""class InputSource(InputSource, object):
 
     def __init__(self, system_id: Optional[str] = None):
-        xmlreader.InputSource.__init__(self, system_id=system_id)
+        InputSource.__init__(self, system_id=system_id)
         self.content_type: Optional[str] = None
         self.auto_close = False  # see Graph.parse(), true if opened by us
 
@@ -116,7 +123,7 @@ class InputSource(xmlreader.InputSource, object):
             except Exception:
                 pass
 
-
+"""
 class PythonInputSource(InputSource):
     """
     Constructs an RDFLib Parser InputSource from a Python data structure,
@@ -173,8 +180,9 @@ class StringInputSource(InputSource):
             stream = StringIO(value)
             self.setCharacterStream(stream)
             self.setEncoding(encoding)
-            b_stream = BytesIOWrapper(value, encoding)
-            self.setByteStream(b_stream)
+            print("Warning: parser.py BytesIOWrapper not supported")
+            ##b_stream = BytesIOWrapper(value, encoding)
+            ##self.setByteStream(b_stream)
         else:
             stream = BytesIO(value)
             self.setByteStream(stream)
@@ -230,9 +238,12 @@ class URLInputSource(InputSource):
 
         req = Request(system_id, None, myheaders)  # type: ignore[arg-type]
 
-        def _urlopen(req: Request) -> Any:
+        def _urlopen(req):##: Request) -> Any:
             try:
-                return urlopen(req)
+                return urlopen(req.full_url) ##FIXME passing only url part
+            except:##TODO
+                raise
+            """
             except HTTPError as ex:
                 # 308 (Permanent Redirect) is not supported by current python version(s)
                 # See https://bugs.python.org/issue40321
@@ -243,31 +254,32 @@ class URLInputSource(InputSource):
                     return _urlopen(req)
                 else:
                     raise
-
+             """
         file = _urlopen(req)
         # Fix for issue 130 https://github.com/RDFLib/rdflib/issues/130
         self.url = file.geturl()  # in case redirections took place
         self.setPublicId(self.url)
-        self.content_type = file.info().get("content-type")
+        ##self.content_type = file.info().get("content-type")
+        self.content_type = file.headers.get("content-type")
         if self.content_type is not None:
             self.content_type = self.content_type.split(";", 1)[0]
         self.setByteStream(file)
         # TODO: self.setEncoding(encoding)
-        self.response_info = file.info()  # a mimetools.Message instance
-
+        ##self.response_info = file.info()  # a mimetools.Message instance
+        self.response_info = file.headers 
     def __repr__(self):
         return self.url
 
 
 class FileInputSource(InputSource):
     def __init__(
-        self, file: Union[BinaryIO, TextIO, TextIOBase, RawIOBase, BufferedIOBase]
+        self, file##: Union[BinaryIO, TextIO, TextIOBase, RawIOBase, BufferedIOBase]
     ):
         base = pathlib.Path.cwd().as_uri()
         system_id = URIRef(pathlib.Path(file.name).absolute().as_uri(), base=base)  # type: ignore[union-attr]
         super(FileInputSource, self).__init__(system_id)
         self.file = file
-        if isinstance(file, TextIOBase):  # Python3 unicode fp
+        """if isinstance(file, TextIOBase):  # Python3 unicode fp
             self.setCharacterStream(file)
             self.setEncoding(file.encoding)
             try:
@@ -276,7 +288,8 @@ class FileInputSource(InputSource):
             except (AttributeError, LookupError):
                 self.setByteStream(file)
         else:
-            self.setByteStream(file)
+        """
+        self.setByteStream(file)
             # We cannot set characterStream here because
             # we do not know the Raw Bytes File encoding.
 
@@ -285,20 +298,20 @@ class FileInputSource(InputSource):
 
 
 def create_input_source(
-    source: Optional[
-        Union[IO[bytes], TextIO, InputSource, str, bytes, pathlib.PurePath]
-    ] = None,
+    source:str, ##: Optional[
+        ##Union[IO[bytes], TextIO, InputSource, str, bytes, pathlib.PurePath]
+    ##] = None,
     publicID: Optional[str] = None,
     location: Optional[str] = None,
     file: Optional[Union[BinaryIO, TextIO]] = None,
     data: Union[str, bytes, dict] = None,
     format: str = None,
-) -> InputSource:
+):## -> InputSource:
     """
     Return an appropriate InputSource instance for the given
     parameters.
     """
-
+   
     # test that exactly one of source, location, file, and data is not None.
     non_empty_arguments = list(
         filter(
@@ -399,16 +412,17 @@ def _create_input_source_from_location(
     # NOTE: using pathlib.Path.exists on a URL fails on windows as it is not a
     # valid path. However os.path.exists() returns false for a URL on windows
     # which is why it is being used instead.
-    if os.path.exists(location):
-        location = pathlib.Path(location).absolute().as_uri()
+    ##if os.path.exists(location):
+    ##    location = pathlib.Path(location).absolute().as_uri()
 
-    base = pathlib.Path.cwd().as_uri()
+    ##base = pathlib.Path.cwd().as_uri()
 
-    absolute_location = URIRef(location, base=base)
+    absolute_location = URIRef(location, None) ##base=None)##base)
 
     if absolute_location.startswith("file:///"):
-        filename = url2pathname(absolute_location.replace("file:///", "/"))
-        file = open(filename, "rb")
+        print("Warning: parser.create_input_source ... file not supported")
+        ##filename = url2pathname(absolute_location.replace("file:///", "/"))
+        ##file = open(filename, "rb")
     else:
         input_source = URLInputSource(absolute_location, format)
 

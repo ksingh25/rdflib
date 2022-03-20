@@ -21,8 +21,9 @@ underlying Graph:
 
 """
 import re
+##from types import ClassMethodDescriptorType
 
-from fractions import Fraction
+##from fractions import Fraction
 
 __all__ = [
     "bind",
@@ -35,35 +36,37 @@ __all__ = [
     "Variable",
 ]
 
-import logging
-import warnings
+##import logging
+##import warnings
 import math
 
-import xml.dom.minidom
+##import xml.dom.minidom
 
-from datetime import date, time, datetime, timedelta
+##from datetime import date, time, datetime, timedelta
 from re import sub, compile
 from collections import defaultdict
 
-from isodate import (
-    parse_time,
-    parse_date,
-    parse_datetime,
-    Duration,
-    parse_duration,
-    duration_isoformat,
-)
-from base64 import b64decode, b64encode
+##from isodate import (
+##    parse_time,
+##    parse_date,
+##    parse_datetime,
+##    Duration,
+##    parse_duration,
+##    duration_isoformat,
+##)
+#from base64 import b64decode, b64encode
 from binascii import hexlify, unhexlify
 
 import rdflib
-from rdflib.compat import long_type
+##from rdflib.compat import long_type
 
 from urllib.parse import urldefrag
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 
-from decimal import Decimal
+##from decimal import Decimal
+
+##using a dummy typing class
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -78,11 +81,11 @@ from typing import (
 )
 
 
-if TYPE_CHECKING:
-    from .paths import AlternativePath, InvPath, NegatedPath, SequencePath, Path
-    from .namespace import NamespaceManager
+#if TYPE_CHECKING:
+   # from .paths import AlternativePath, InvPath, NegatedPath, SequencePath, Path
+   # from .namespace import NamespaceManager
 
-logger = logging.getLogger(__name__)
+##logger = logging.getLogger(__name__)
 skolem_genid = "/.well-known/genid/"
 rdflib_skolem_genid = "/.well-known/genid/rdflib/"
 skolems: Dict[str, "BNode"] = {}
@@ -98,7 +101,7 @@ def _is_valid_uri(uri: str) -> bool:
     return True
 
 
-_lang_tag_regex = compile("^[a-zA-Z]+(?:-[a-zA-Z0-9]+)*$")
+_lang_tag_regex = compile('^[a-zA-Z]+(?:-[a-zA-Z0-9]+)*$')##,'lang','eval')
 
 
 def _is_valid_langtag(tag: str) -> bool:
@@ -139,8 +142,11 @@ class Identifier(Node, str):  # allow Identifiers to be Nodes in the Graph
 
     __slots__ = ()
 
-    def __new__(cls, value: str) -> "Identifier":
-        return str.__new__(cls, value)
+    ##__new__ not supported in micropython, we relying on default constructor
+    ##def __new__(cls, value: str) -> "Identifier":
+        ##return str.__new__(cls, value)
+    def __init_(self, value: str) -> "Identifier":
+        super().__init__(value)
 
     def eq(self, other: Any) -> bool:
         """A "semantic"/interpreted equality function,
@@ -221,7 +227,14 @@ class Identifier(Node, str):  # allow Identifiers to be Nodes in the Graph
         if r:
             return True
         return self == other
-
+    ##
+    def __repr__(self) -> str:
+        if self.__class__ is Identifier:
+            clsName = "rdflib.term.Identifier"
+        else:
+            clsName = self.__class__.__name__
+        return """%s('%s')""" % (clsName, str(self))
+    
     # type error: Argument 1 of "startswith" is incompatible with supertype "str"; supertype defines the argument type as "Union[str, Tuple[str, ...]]"
     # FIXME: this does not accommodate prefix of type Tuple[str, ...] which is a
     # valid for str.startswith
@@ -232,7 +245,9 @@ class Identifier(Node, str):  # allow Identifiers to be Nodes in the Graph
     # clashes of 'foo', URIRef('foo') and Literal('foo') are typically so rare
     # that they don't justify additional overhead. Notice that even in case of
     # clash __eq__ is still the fallback and very quick in those cases.
-    __hash__ = str.__hash__
+    ##__hash__ = str.__hash__
+    ##FIXME
+    __hash__ = id
 
 
 class IdentifiedNode(Identifier):
@@ -256,12 +271,13 @@ class URIRef(IdentifiedNode):
 
     __slots__ = ()
 
-    __or__: Callable[["URIRef", Union["URIRef", "Path"]], "AlternativePath"]
-    __invert__: Callable[["URIRef"], "InvPath"]
-    __neg__: Callable[["URIRef"], "NegatedPath"]
-    __truediv__: Callable[["URIRef", Union["URIRef", "Path"]], "SequencePath"]
+    ##__or__: Callable[["URIRef", Union["URIRef", "Path"]], "AlternativePath"]
+    ##__invert__: Callable[["URIRef"], "InvPath"]
+    ##__neg__: Callable[["URIRef"], "NegatedPath"]
+    ##__truediv__: Callable[["URIRef", Union["URIRef", "Path"]], "SequencePath"]
 
-    def __new__(cls, value: str, base: Optional[str] = None) -> "URIRef":
+    def __init__(self, value: str, base: Optional[str] = None) -> "URIRef":
+    ##def __new__(cls, value: str, base: Optional[str] = None) -> "URIRef":
         if base is not None:
             ends_in_hash = value.endswith("#")
             # type error: Argument "allow_fragments" to "urljoin" has incompatible type "int"; expected "bool"
@@ -271,19 +287,21 @@ class URIRef(IdentifiedNode):
                     value += "#"
 
         if not _is_valid_uri(value):
-            logger.warning(
-                "%s does not look like a valid URI, trying to serialize this will break."
-                % value
+            ##logger.warning(
+            raise Exception(
+                '"%s" does not look like a valid URI'
+                % self
             )
-
-        try:
-            rt = str.__new__(cls, value)
-        except UnicodeDecodeError:
+            
+        super().__init__(value)
+        ##try:
+        ##rt = str.__new__(cls, value)
+        ##except UnicodeDecodeError:
             # type error: No overload variant of "__new__" of "str" matches argument types "Type[URIRef]", "str", "str"
-            rt = str.__new__(cls, value, "utf-8")  # type: ignore[call-overload]
-        return rt
-
-    def n3(self, namespace_manager: Optional["NamespaceManager"] = None) -> str:
+          ##  rt = str.__new__(cls, value, "utf-8")  # type: ignore[call-overload]
+        #return 
+    ##deleted namespacemanager optional
+    def n3(self, namespace_manager = None) -> str:
         """
         This will do a limited check for valid URIs,
         essentially just making sure that the string includes no illegal
@@ -406,7 +424,6 @@ def _serial_number_generator() -> Callable[[], str]:
     Generates UUID4-based but ncname-compliant identifiers.
     """
     from uuid import uuid4
-
     def _generator():
         return uuid4().hex
 
@@ -421,11 +438,12 @@ class BNode(IdentifiedNode):
 
     __slots__ = ()
 
-    def __new__(
-        cls,
-        value: Optional[str] = None,
-        _sn_gen: Callable[[], str] = _serial_number_generator(),
-        _prefix: str = _unique_id(),
+    def __init__(
+    ##def __new__(
+        self,##cls,
+        value = None, ##: Optional[str] = None,
+        _sn_gen = _serial_number_generator(),##: Callable[[], str] = _serial_number_generator(),
+        _prefix = _unique_id(),##: str = _unique_id(),
     ) -> "BNode":
         """
         # only store implementations should pass in a value
@@ -444,9 +462,11 @@ class BNode(IdentifiedNode):
             # must be valid NCNames" _:[A-Za-z][A-Za-z0-9]*
             # http://www.w3.org/TR/2004/REC-rdf-testcases-20040210/#nodeID
         # type error: Incompatible return value type (got "Identifier", expected "BNode")
-        return Identifier.__new__(cls, value)  # type: ignore[return-value]
+        super().__init__(value)
+        ##return Identifier.__new__(cls, value)  # type: ignore[return-value]
 
-    def n3(self, namespace_manager: Optional["NamespaceManager"] = None) -> str:
+    ##deleted : Optional["NamespaceManager"]
+    def n3(self, namespace_manager = None) -> str:
         return "_:%s" % self
 
     def __reduce__(self) -> Tuple[Type["BNode"], Tuple[str]]:
@@ -488,75 +508,6 @@ class Literal(Identifier):
     at construction time. Default behaviour is set by rdflib.NORMALIZE_LITERALS
     and can be overridden by the normalize parameter to __new__
 
-    Equality and hashing of Literals are done based on the lexical form, i.e.:
-
-    >>> from rdflib.namespace import XSD
-
-    >>> Literal('01') != Literal('1')  # clear - strings differ
-    True
-
-    but with data-type they get normalized:
-
-    >>> Literal('01', datatype=XSD.integer) != Literal('1', datatype=XSD.integer)
-    False
-
-    unless disabled:
-
-    >>> Literal('01', datatype=XSD.integer, normalize=False) != Literal('1', datatype=XSD.integer)
-    True
-
-
-    Value based comparison is possible:
-
-    >>> Literal('01', datatype=XSD.integer).eq(Literal('1', datatype=XSD.float))
-    True
-
-    The eq method also provides limited support for basic python types:
-
-    >>> Literal(1).eq(1) # fine - int compatible with xsd:integer
-    True
-    >>> Literal('a').eq('b') # fine - str compatible with plain-lit
-    False
-    >>> Literal('a', datatype=XSD.string).eq('a') # fine - str compatible with xsd:string
-    True
-    >>> Literal('a').eq(1) # not fine, int incompatible with plain-lit
-    NotImplemented
-
-    Greater-than/less-than ordering comparisons are also done in value
-    space, when compatible datatypes are used.  Incompatible datatypes
-    are ordered by DT, or by lang-tag.  For other nodes the ordering
-    is None < BNode < URIRef < Literal
-
-    Any comparison with non-rdflib Node are "NotImplemented"
-    In PY3 this is an error.
-
-    >>> from rdflib import Literal, XSD
-    >>> lit2006 = Literal('2006-01-01',datatype=XSD.date)
-    >>> lit2006.toPython()
-    datetime.date(2006, 1, 1)
-    >>> lit2006 < Literal('2007-01-01',datatype=XSD.date)
-    True
-    >>> Literal(datetime.utcnow()).datatype
-    rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#dateTime')
-    >>> Literal(1) > Literal(2) # by value
-    False
-    >>> Literal(1) > Literal(2.0) # by value
-    False
-    >>> Literal('1') > Literal(1) # by DT
-    True
-    >>> Literal('1') < Literal('1') # by lexical form
-    False
-    >>> Literal('a', lang='en') > Literal('a', lang='fr') # by lang-tag
-    False
-    >>> Literal(1) > URIRef('foo') # by node-type
-    True
-
-    The > < operators will eat this NotImplemented and throw a TypeError (py3k):
-
-    >>> Literal(1).__gt__(2.0)
-    NotImplemented
-
-
     """
 
     _value: Any
@@ -565,8 +516,9 @@ class Literal(Identifier):
     _datatype: Optional[str]
     __slots__ = ("_language", "_datatype", "_value")
 
-    def __new__(
-        cls,
+    def __init__(
+    ##def __new__(
+        self, ##cls,
         lexical_or_value: Any,
         lang: Optional[str] = None,
         datatype: Optional[str] = None,
@@ -632,29 +584,22 @@ class Literal(Identifier):
         if datatype in (_XSD_TOKEN,):
             lexical_or_value = _strip_and_collapse_whitespace(lexical_or_value)
 
-        try:
-            inst: Literal = str.__new__(cls, lexical_or_value)
-        except UnicodeDecodeError:
-            inst = str.__new__(cls, lexical_or_value, "utf-8")
+        ##try:
+        ##inst = cls.unew(lexical_or_value) ##str.__new__(cls, lexical_or_value)
+        ##except UnicodeDecodeError:
+        ##    inst = str.__new__(cls, lexical_or_value, "utf-8")
+        
+        super().__init__(lexical_or_value)
+        self._language = lang
+        self._datatype = datatype
+        self._value = value
 
-        inst._language = lang
-        inst._datatype = datatype
-        inst._value = value
-
-        return inst
+        ##return inst
 
     def normalize(self) -> "Literal":
         """
         Returns a new literal with a normalised lexical representation
         of this literal
-        >>> from rdflib import XSD
-        >>> Literal("01", datatype=XSD.integer, normalize=False).normalize()
-        rdflib.term.Literal(u'1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        Illegal lexical forms for the datatype given are simply passed on
-        >>> Literal("a", datatype=XSD.integer, normalize=False)
-        rdflib.term.Literal(u'a', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
         """
 
         if self.value is not None:
@@ -718,15 +663,16 @@ class Literal(Identifier):
             and val.datatype in _NUMERIC_LITERAL_TYPES
         ):
             return Literal(
-                Decimal(
-                    (
-                        "%f"
-                        % round(Decimal(self.toPython()) + Decimal(val.toPython()), 15)
-                    )
-                    .rstrip("0")
-                    .rstrip(".")
-                ),
-                datatype=_XSD_DECIMAL,
+                print("term.Literal Decimal Not supported")
+                ##Decimal(
+                #    (
+                #        "%f"
+                #        % round(Decimal(self.toPython()) + Decimal(val.toPython()), 15)
+                #    )
+                #    .rstrip("0")
+                #    .rstrip(".")
+                #),
+                #datatype=_XSD_DECIMAL,
             )
         # in all other cases, perform string concatenation
         else:
@@ -754,124 +700,38 @@ class Literal(Identifier):
         return len(self) != 0
 
     def __neg__(self) -> "Literal":
-        """
-        >>> (- Literal(1))
-        rdflib.term.Literal(u'-1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-        >>> (- Literal(10.5))
-        rdflib.term.Literal(u'-10.5', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#double'))
-        >>> from rdflib.namespace import XSD
-        >>> (- Literal("1", datatype=XSD.integer))
-        rdflib.term.Literal(u'-1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        >>> (- Literal("1"))
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-        TypeError: Not a number; rdflib.term.Literal(u'1')
-        >>>
-        """
-
-        if isinstance(self.value, (int, long_type, float)):
-            return Literal(self.value.__neg__())
-        else:
-            raise TypeError("Not a number; %s" % repr(self))
+        print("term.Literal._neg_ Not supported")
+        ##if isinstance(self.value, (int, long_type, float)):
+        ##    return Literal(self.value.__neg__())
+        ##else:
+        ##    raise TypeError("Not a number; %s" % repr(self))
 
     def __pos__(self) -> "Literal":
-        """
-        >>> (+ Literal(1))
-        rdflib.term.Literal(u'1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-        >>> (+ Literal(-1))
-        rdflib.term.Literal(u'-1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-        >>> from rdflib.namespace import XSD
-        >>> (+ Literal("-1", datatype=XSD.integer))
-        rdflib.term.Literal(u'-1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        >>> (+ Literal("1"))
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-        TypeError: Not a number; rdflib.term.Literal(u'1')
-        """
-        if isinstance(self.value, (int, long_type, float)):
-            return Literal(self.value.__pos__())
-        else:
-            raise TypeError("Not a number; %s" % repr(self))
+        
+        print("term.Literal.__pos__ Not supported")
+        ##if isinstance(self.value, (int, long_type, float)):
+        ##    return Literal(self.value.__pos__())
+        ##else:
+        ##    raise TypeError("Not a number; %s" % repr(self))
 
     def __abs__(self) -> "Literal":
-        """
-        >>> abs(Literal(-1))
-        rdflib.term.Literal(u'1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        >>> from rdflib.namespace import XSD
-        >>> abs( Literal("-1", datatype=XSD.integer))
-        rdflib.term.Literal(u'1', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        >>> abs(Literal("1"))
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-        TypeError: Not a number; rdflib.term.Literal(u'1')
-        """
-        if isinstance(self.value, (int, long_type, float)):
-            return Literal(self.value.__abs__())
-        else:
-            raise TypeError("Not a number; %s" % repr(self))
+        
+        print("term.Literal.__abs__ Not supported")
+        ##if isinstance(self.value, (int, long_type, float)):
+        ##    return Literal(self.value.__abs__())
+        ##else:
+        ##    raise TypeError("Not a number; %s" % repr(self))
 
     def __invert__(self) -> "Literal":
-        """
-        >>> ~(Literal(-1))
-        rdflib.term.Literal(u'0', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        >>> from rdflib.namespace import XSD
-        >>> ~( Literal("-1", datatype=XSD.integer))
-        rdflib.term.Literal(u'0', datatype=rdflib.term.URIRef(u'http://www.w3.org/2001/XMLSchema#integer'))
-
-        Not working:
-
-        >>> ~(Literal("1"))
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-        TypeError: Not a number; rdflib.term.Literal(u'1')
-        """
-        if isinstance(self.value, (int, long_type, float)):
-            # type error: Unsupported operand type for ~ ("float")
-            return Literal(self.value.__invert__())  # type: ignore[operator] # FIXME
-        else:
-            raise TypeError("Not a number; %s" % repr(self))
+        
+        print("term.Literal.__invert__ Not supported")
+        ##if isinstance(self.value, (int, long_type, float)):
+        ##    # type error: Unsupported operand type for ~ ("float")
+        ##    return Literal(self.value.__invert__())  # type: ignore[operator] # FIXME
+        ##else:
+        ##    raise TypeError("Not a number; %s" % repr(self))
 
     def __gt__(self, other: Any) -> bool:
-        """
-
-        This implements ordering for Literals,
-        the other comparison methods delegate here
-
-        This tries to implement this:
-        http://www.w3.org/TR/sparql11-query/#modOrderBy
-
-        In short, Literals with compatible data-types are ordered in value
-        space, i.e.
-        >>> from rdflib import XSD
-
-        >>> Literal(1) > Literal(2) # int/int
-        False
-        >>> Literal(2.0) > Literal(1) # double/int
-        True
-        >>> from decimal import Decimal
-        >>> Literal(Decimal("3.3")) > Literal(2.0) # decimal/double
-        True
-        >>> Literal(Decimal("3.3")) < Literal(4.0) # decimal/double
-        True
-        >>> Literal('b') > Literal('a') # plain lit/plain lit
-        True
-        >>> Literal('b') > Literal('a', datatype=XSD.string) # plain lit/xsd:str
-        True
-
-        Incompatible datatype mismatches ordered by DT
-
-        >>> Literal(1) > Literal("2") # int>string
-        False
-
-        Langtagged literals by lang tag
-        >>> Literal("a", lang="en") > Literal("a", lang="fr")
-        False
-        """
         if other is None:
             return True  # Everything is greater than None
         if isinstance(other, Literal):
@@ -901,15 +761,15 @@ class Literal(Identifier):
                 else:
                     return self.language > other.language
 
-            if self.value is not None and other.value is not None:
-                if type(self.value) in _TOTAL_ORDER_CASTERS:
-                    caster = _TOTAL_ORDER_CASTERS[type(self.value)]
-                    return caster(self.value) > caster(other.value)
+            ##if self.value is not None and other.value is not None:
+            ##    if type(self.value) in _TOTAL_ORDER_CASTERS:
+            ##        caster = _TOTAL_ORDER_CASTERS[type(self.value)]
+            ##        return caster(self.value) > caster(other.value)
 
-                try:
-                    return self.value > other.value
-                except TypeError:
-                    pass
+            ##    try:
+            ##        return self.value > other.value
+            ##    except TypeError:
+            ##        pass
 
             if str(self) != str(other):
                 return str(self) > str(other)
@@ -1007,31 +867,11 @@ class Literal(Identifier):
         >>> a = {Literal('1', datatype=XSD.integer):'one'}
         >>> Literal('1', datatype=XSD.double) in a
         False
-
-
-        "Called for the key object for dictionary operations,
-        and by the built-in function hash(). Should return
-        a 32-bit integer usable as a hash value for
-        dictionary operations. The only required property
-        is that objects which compare equal have the same
-        hash value; it is advised to somehow mix together
-        (e.g., using exclusive or) the hash values for the
-        components of the object that also play a part in
-        comparison of objects." -- 3.4.1 Basic customization (Python)
-
-        "Two literals are equal if and only if all of the following hold:
-        * The strings of the two lexical forms compare equal, character by
-        character.
-        * Either both or neither have language tags.
-        * The language tags, if any, compare equal.
-        * Either both or neither have datatype URIs.
-        * The two datatype URIs, if any, compare equal, character by
-        character."
-        -- 6.5.1 Literal Equality (RDF: Concepts and Abstract Syntax)
-
         """
         # don't use super()... for efficiency reasons, see Identifier.__hash__
-        res = str.__hash__(self)
+        ##res = str.__hash__(self)
+        ##res = hash(self)
+        res = super().__hash__(self)
         # Directly accessing the member is faster than the property.
         if self._language:
             res ^= hash(self._language.lower())
@@ -1050,30 +890,6 @@ class Literal(Identifier):
         * Either both or neither have datatype URIs.
         * The two datatype URIs, if any, compare equal, character by character."
         -- 6.5.1 Literal Equality (RDF: Concepts and Abstract Syntax)
-
-        >>> Literal("1", datatype=URIRef("foo")) == Literal("1", datatype=URIRef("foo"))
-        True
-        >>> Literal("1", datatype=URIRef("foo")) == Literal("1", datatype=URIRef("foo2"))
-        False
-
-        >>> Literal("1", datatype=URIRef("foo")) == Literal("2", datatype=URIRef("foo"))
-        False
-        >>> Literal("1", datatype=URIRef("foo")) == "asdf"
-        False
-        >>> from rdflib import XSD
-        >>> Literal('2007-01-01', datatype=XSD.date) == Literal('2007-01-01', datatype=XSD.date)
-        True
-        >>> Literal('2007-01-01', datatype=XSD.date) == date(2007, 1, 1)
-        False
-        >>> Literal("one", lang="en") == Literal("one", lang="en")
-        True
-        >>> Literal("hast", lang='en') == Literal("hast", lang='de')
-        False
-        >>> Literal("1", datatype=XSD.integer) == Literal(1)
-        True
-        >>> Literal("1", datatype=XSD.integer) == Literal("01", datatype=XSD.integer)
-        True
-
         """
         if self is other:
             return True
@@ -1085,7 +901,8 @@ class Literal(Identifier):
                 self._datatype == other._datatype
                 and (self._language.lower() if self._language else None)
                 == (other._language.lower() if other._language else None)
-                and str.__eq__(self, other)
+                ##and str.__eq__(self, other)
+                and super().__eq__(other)
             )
 
         return False
@@ -1093,24 +910,6 @@ class Literal(Identifier):
     def eq(self, other: Any) -> bool:
         """
         Compare the value of this literal with something else
-
-        Either, with the value of another literal
-        comparisons are then done in literal "value space",
-        and according to the rules of XSD subtype-substitution/type-promotion
-
-        OR, with a python object:
-
-        basestring objects can be compared with plain-literals,
-        or those with datatype xsd:string
-
-        bool objects with xsd:boolean
-
-        a int, long or float with numeric xsd types
-
-        isodate date,time,datetime objects with xsd:date,xsd:time or xsd:datetime
-
-        Any other operations returns NotImplemented
-
         """
         if isinstance(other, Literal):
 
@@ -1152,8 +951,8 @@ class Literal(Identifier):
 
             if self.value is not None and other.value is not None:
 
-                if self.datatype in (_RDF_XMLLITERAL, _RDF_HTMLLITERAL):
-                    return _isEqualXMLNode(self.value, other.value)
+                ##if self.datatype in (_RDF_XMLLITERAL, _RDF_HTMLLITERAL):
+                ##    return _isEqualXMLNode(self.value, other.value)
 
                 return self.value == other.value
             else:
@@ -1183,19 +982,19 @@ class Literal(Identifier):
             if self.datatype == _XSD_STRING or self.datatype is None:
                 return str(self) == other
 
-        elif isinstance(other, (int, long_type, float)):
-            if self.datatype in _NUMERIC_LITERAL_TYPES:
-                return self.value == other
-        elif isinstance(other, (date, datetime, time)):
-            if self.datatype in (_XSD_DATETIME, _XSD_DATE, _XSD_TIME):
-                return self.value == other
-        elif isinstance(other, (timedelta, Duration)):
-            if self.datatype in (
-                _XSD_DURATION,
-                _XSD_DAYTIMEDURATION,
-                _XSD_YEARMONTHDURATION,
-            ):
-                return self.value == other
+        ##elif isinstance(other, (int, long_type, float)):
+        ##    if self.datatype in _NUMERIC_LITERAL_TYPES:
+        ##        return self.value == other
+        ##elif isinstance(other, (date, datetime, time)):
+        ##    if self.datatype in (_XSD_DATETIME, _XSD_DATE, _XSD_TIME):
+        ##        return self.value == other
+        ##elif isinstance(other, (timedelta, Duration)):
+        ##    if self.datatype in (
+        ##        _XSD_DURATION,
+        ##        _XSD_DAYTIMEDURATION,
+        ##        _XSD_YEARMONTHDURATION,
+        ##    ):
+        ##        return self.value == other
         # NOTE for type ignore: bool is a subclass of int so this won't ever run.
         elif isinstance(other, bool):  # type: ignore[unreachable]
             if self.datatype == _XSD_BOOLEAN:
@@ -1205,59 +1004,10 @@ class Literal(Identifier):
 
     def neq(self, other: Any) -> bool:
         return not self.eq(other)
-
-    def n3(self, namespace_manager: Optional["NamespaceManager"] = None) -> str:
+    ##deleted : Optional["NamespaceManager"]
+    def n3(self, namespace_manager = None) -> str:
         r'''
         Returns a representation in the N3 format.
-
-        Examples::
-
-            >>> Literal("foo").n3()
-            u'"foo"'
-
-        Strings with newlines or triple-quotes::
-
-            >>> Literal("foo\nbar").n3()
-            u'"""foo\nbar"""'
-
-            >>> Literal("''\'").n3()
-            u'"\'\'\'"'
-
-            >>> Literal('"""').n3()
-            u'"\\"\\"\\""'
-
-        Language::
-
-            >>> Literal("hello", lang="en").n3()
-            u'"hello"@en'
-
-        Datatypes::
-
-            >>> Literal(1).n3()
-            u'"1"^^<http://www.w3.org/2001/XMLSchema#integer>'
-
-            >>> Literal(1.0).n3()
-            u'"1.0"^^<http://www.w3.org/2001/XMLSchema#double>'
-
-            >>> Literal(True).n3()
-            u'"true"^^<http://www.w3.org/2001/XMLSchema#boolean>'
-
-        Datatype and language isn't allowed (datatype takes precedence)::
-
-            >>> Literal(1, lang="en").n3()
-            u'"1"^^<http://www.w3.org/2001/XMLSchema#integer>'
-
-        Custom datatype::
-
-            >>> footype = URIRef("http://example.org/ns#foo")
-            >>> Literal("1", datatype=footype).n3()
-            u'"1"^^<http://example.org/ns#foo>'
-
-        Passing a namespace-manager will use it to abbreviate datatype URIs:
-
-            >>> from rdflib import Graph
-            >>> Literal(1).n3(Graph().namespace_manager)
-            u'"1"^^xsd:integer'
         '''
         if namespace_manager:
             return self._literal_n3(qname_callback=namespace_manager.normalizeUri)
@@ -1270,48 +1020,7 @@ class Literal(Identifier):
         qname_callback: Optional[Callable[[str], str]] = None,
     ) -> str:
         """
-        Using plain literal (shorthand) output::
-            >>> from rdflib.namespace import XSD
-
-            >>> Literal(1)._literal_n3(use_plain=True)
-            u'1'
-
-            >>> Literal(1.0)._literal_n3(use_plain=True)
-            u'1e+00'
-
-            >>> Literal(1.0, datatype=XSD.decimal)._literal_n3(use_plain=True)
-            u'1.0'
-
-            >>> Literal(1.0, datatype=XSD.float)._literal_n3(use_plain=True)
-            u'"1.0"^^<http://www.w3.org/2001/XMLSchema#float>'
-
-            >>> Literal("foo", datatype=XSD.string)._literal_n3(
-            ...         use_plain=True)
-            u'"foo"^^<http://www.w3.org/2001/XMLSchema#string>'
-
-            >>> Literal(True)._literal_n3(use_plain=True)
-            u'true'
-
-            >>> Literal(False)._literal_n3(use_plain=True)
-            u'false'
-
-            >>> Literal(1.91)._literal_n3(use_plain=True)
-            u'1.91e+00'
-
-            Only limited precision available for floats:
-            >>> Literal(0.123456789)._literal_n3(use_plain=True)
-            u'1.234568e-01'
-
-            >>> Literal('0.123456789',
-            ...     datatype=XSD.decimal)._literal_n3(use_plain=True)
-            u'0.123456789'
-
-        Using callback for datatype QNames::
-
-            >>> Literal(1)._literal_n3(
-            ...         qname_callback=lambda uri: "xsd:integer")
-            u'"1"^^xsd:integer'
-
+        Using plain literal (shorthand) output
         """
         if use_plain and self.datatype in _PLAIN_LITERAL_TYPES:
             if self.value is not None:
@@ -1363,7 +1072,8 @@ class Literal(Identifier):
                 except ValueError:
                     # if we can't cast to float something is wrong, but we can
                     # still serialize. Warn user about it
-                    warnings.warn("Serializing weird numerical %r" % self)
+                    ##warnings.warn
+                    print("Serializing weird numerical %r" % self)
 
         language = self.language
         if language:
@@ -1419,50 +1129,6 @@ class Literal(Identifier):
             return self.value
         return self
 
-
-def _parseXML(xmlstring: str) -> xml.dom.minidom.Document:
-    retval = xml.dom.minidom.parseString(
-        "<rdflibtoplevelelement>%s</rdflibtoplevelelement>" % xmlstring
-    )
-    retval.normalize()
-    return retval
-
-
-def _parseHTML(htmltext: str) -> xml.dom.minidom.DocumentFragment:
-    try:
-        import html5lib
-
-        parser = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("dom"))
-        retval = parser.parseFragment(htmltext)
-        retval.normalize()
-        return retval
-    except ImportError:
-        raise ImportError(
-            "HTML5 parser not available. Try installing"
-            + " html5lib <http://code.google.com/p/html5lib>"
-        )
-
-
-def _writeXML(
-    xmlnode: Union[xml.dom.minidom.Document, xml.dom.minidom.DocumentFragment]
-) -> bytes:
-    if isinstance(xmlnode, xml.dom.minidom.DocumentFragment):
-        d = xml.dom.minidom.Document()
-        d.childNodes += xmlnode.childNodes
-        xmlnode = d
-    s = xmlnode.toxml("utf-8")
-    # for clean round-tripping, remove headers -- I have great and
-    # specific worries that this will blow up later, but this margin
-    # is too narrow to contain them
-    if s.startswith('<?xml version="1.0" encoding="utf-8"?>'.encode("latin-1")):
-        s = s[38:]
-    if s.startswith("<rdflibtoplevelelement>".encode("latin-1")):
-        s = s[23:-24]
-    if s == "<rdflibtoplevelelement/>".encode("latin-1"):
-        s = "".encode("latin-1")
-    return s
-
-
 def _unhexlify(value: Union[str, bytes, Literal]) -> bytes:
     # In Python 3.2, unhexlify does not support str (only bytes)
     if isinstance(value, str):
@@ -1477,7 +1143,8 @@ def _parseBoolean(value: str) -> bool:
     if new_value in true_accepted_values:
         return True
     if new_value not in false_accepted_values:
-        warnings.warn(
+        ##warnings.warn(
+        print(
             "Parsing weird boolean, % r does not map to True or False" % value,
             category=UserWarning,
         )
@@ -1553,19 +1220,19 @@ _NUMERIC_INF_NAN_LITERAL_TYPES: Tuple[URIRef, ...] = (
 # the following types need special treatment for reasonable sorting because
 # certain instances can't be compared to each other. We treat this by
 # partitioning and then sorting within those partitions.
-_TOTAL_ORDER_CASTERS: Dict[Type[Any], Callable[[Any], Any]] = {
-    datetime: lambda value: (
-        # naive vs. aware
-        value.tzinfo is not None and value.tzinfo.utcoffset(value) is not None,
-        value,
-    ),
-    time: lambda value: (
-        # naive vs. aware
-        value.tzinfo is not None and value.tzinfo.utcoffset(None) is not None,
-        value,
-    ),
-    xml.dom.minidom.Document: lambda value: value.toxml(),
-}
+##_TOTAL_ORDER_CASTERS: Dict[Type[Any], Callable[[Any], Any]] = {
+    ##datetime: lambda value: (
+    ##    # naive vs. aware
+    ##    value.tzinfo is not None and value.tzinfo.utcoffset(value) is not None,
+    ##    value,
+    ##),
+    ##time: lambda value: (
+    ##    # naive vs. aware
+    ##    value.tzinfo is not None and value.tzinfo.utcoffset(None) is not None,
+    ##    value,
+    ##),
+    ##xml.dom.minidom.Document: lambda value: value.toxml(),
+##}
 
 
 _STRING_LITERAL_TYPES: Tuple[URIRef, ...] = (
@@ -1628,69 +1295,69 @@ _GenericPythonToXSDRules: List[
     (float, (None, _XSD_DOUBLE)),
     (bool, (lambda i: str(i).lower(), _XSD_BOOLEAN)),
     (int, (None, _XSD_INTEGER)),
-    (long_type, (None, _XSD_INTEGER)),
-    (Decimal, (lambda i: f"{i:f}", _XSD_DECIMAL)),
-    (datetime, (lambda i: i.isoformat(), _XSD_DATETIME)),
-    (date, (lambda i: i.isoformat(), _XSD_DATE)),
-    (time, (lambda i: i.isoformat(), _XSD_TIME)),
-    (Duration, (lambda i: duration_isoformat(i), _XSD_DURATION)),
-    (timedelta, (lambda i: duration_isoformat(i), _XSD_DAYTIMEDURATION)),
-    (xml.dom.minidom.Document, (_writeXML, _RDF_XMLLITERAL)),
+    ##(long_type, (None, _XSD_INTEGER)),
+    ##(Decimal, (lambda i: f"{i:f}", _XSD_DECIMAL)),
+    ##(datetime, (lambda i: i.isoformat(), _XSD_DATETIME)),
+    ##(date, (lambda i: i.isoformat(), _XSD_DATE)),
+    ##(time, (lambda i: i.isoformat(), _XSD_TIME)),
+    ##(Duration, (lambda i: duration_isoformat(i), _XSD_DURATION)),
+    ##(timedelta, (lambda i: duration_isoformat(i), _XSD_DAYTIMEDURATION)),
+    ##(xml.dom.minidom.Document, (_writeXML, _RDF_XMLLITERAL)),
     # this is a bit dirty - by accident the html5lib parser produces
     # DocumentFragments, and the xml parser Documents, letting this
     # decide what datatype to use makes roundtripping easier, but it a
     # bit random
-    (xml.dom.minidom.DocumentFragment, (_writeXML, _RDF_HTMLLITERAL)),
-    (Fraction, (None, _OWL_RATIONAL)),
+    ##(xml.dom.minidom.DocumentFragment, (_writeXML, _RDF_HTMLLITERAL)),
+    ##(Fraction, (None, _OWL_RATIONAL)),
 ]
 
 _SpecificPythonToXSDRules: List[
     Tuple[Tuple[Type[Any], str], Optional[Callable[[Any], Union[str, bytes]]]]
 ] = [
-    ((date, _XSD_GYEAR), lambda val: val.strftime("%Y").zfill(4)),
-    ((date, _XSD_GYEARMONTH), lambda val: val.strftime("%Y-%m").zfill(7)),
+    ##((date, _XSD_GYEAR), lambda val: val.strftime("%Y").zfill(4)),
+    ##((date, _XSD_GYEARMONTH), lambda val: val.strftime("%Y-%m").zfill(7)),
     ((str, _XSD_HEXBINARY), hexlify),
     ((bytes, _XSD_HEXBINARY), hexlify),
-    ((str, _XSD_B64BINARY), b64encode),
-    ((bytes, _XSD_B64BINARY), b64encode),
+    ##((str, _XSD_B64BINARY), b64encode),
+    ##((bytes, _XSD_B64BINARY), b64encode),
 ]
 
 XSDToPython: Dict[Optional[str], Optional[Callable[[str], Any]]] = {
     None: None,  # plain literals map directly to value space
-    URIRef(_XSD_PFX + "time"): parse_time,
-    URIRef(_XSD_PFX + "date"): parse_date,
-    URIRef(_XSD_PFX + "gYear"): parse_date,
-    URIRef(_XSD_PFX + "gYearMonth"): parse_date,
-    URIRef(_XSD_PFX + "dateTime"): parse_datetime,
-    URIRef(_XSD_PFX + "duration"): parse_duration,
-    URIRef(_XSD_PFX + "dayTimeDuration"): parse_duration,
-    URIRef(_XSD_PFX + "yearMonthDuration"): parse_duration,
+    ##URIRef(_XSD_PFX + "time"): parse_time,
+    ##URIRef(_XSD_PFX + "date"): parse_date,
+    ##URIRef(_XSD_PFX + "gYear"): parse_date,
+    ##URIRef(_XSD_PFX + "gYearMonth"): parse_date,
+    ##URIRef(_XSD_PFX + "dateTime"): parse_datetime,
+    ##URIRef(_XSD_PFX + "duration"): parse_duration,
+    ##URIRef(_XSD_PFX + "dayTimeDuration"): parse_duration,
+    ##URIRef(_XSD_PFX + "yearMonthDuration"): parse_duration,
     URIRef(_XSD_PFX + "hexBinary"): _unhexlify,
     URIRef(_XSD_PFX + "string"): None,
     URIRef(_XSD_PFX + "normalizedString"): None,
     URIRef(_XSD_PFX + "token"): None,
     URIRef(_XSD_PFX + "language"): None,
     URIRef(_XSD_PFX + "boolean"): _parseBoolean,
-    URIRef(_XSD_PFX + "decimal"): Decimal,
-    URIRef(_XSD_PFX + "integer"): long_type,
+    ##URIRef(_XSD_PFX + "decimal"): Decimal,
+    ##URIRef(_XSD_PFX + "integer"): long_type,
     URIRef(_XSD_PFX + "nonPositiveInteger"): int,
-    URIRef(_XSD_PFX + "long"): long_type,
+    ##URIRef(_XSD_PFX + "long"): long_type,
     URIRef(_XSD_PFX + "nonNegativeInteger"): int,
     URIRef(_XSD_PFX + "negativeInteger"): int,
-    URIRef(_XSD_PFX + "int"): long_type,
-    URIRef(_XSD_PFX + "unsignedLong"): long_type,
+    ##URIRef(_XSD_PFX + "int"): long_type,
+    ##URIRef(_XSD_PFX + "unsignedLong"): long_type,
     URIRef(_XSD_PFX + "positiveInteger"): int,
     URIRef(_XSD_PFX + "short"): int,
-    URIRef(_XSD_PFX + "unsignedInt"): long_type,
+    ##URIRef(_XSD_PFX + "unsignedInt"): long_type,
     URIRef(_XSD_PFX + "byte"): int,
     URIRef(_XSD_PFX + "unsignedShort"): int,
     URIRef(_XSD_PFX + "unsignedByte"): int,
     URIRef(_XSD_PFX + "float"): float,
     URIRef(_XSD_PFX + "double"): float,
-    URIRef(_XSD_PFX + "base64Binary"): b64decode,
+    ##URIRef(_XSD_PFX + "base64Binary"): b64decode,
     URIRef(_XSD_PFX + "anyURI"): None,
-    _RDF_XMLLITERAL: _parseXML,
-    _RDF_HTMLLITERAL: _parseHTML,
+    ##_RDF_XMLLITERAL: _parseXML,
+    ##_RDF_HTMLLITERAL: _parseHTML,
 }
 
 _toPythonMapping: Dict[Optional[str], Optional[Callable[[str], Any]]] = {}
@@ -1783,7 +1450,8 @@ def bind(
         raise Exception("No datatype given for a datatype-specific binding")
 
     if datatype in _toPythonMapping:
-        logger.warning("datatype '%s' was already bound. Rebinding." % datatype)
+        ##logger.warning
+        print("datatype '%s' was already bound. Rebinding." % datatype)
 
     if constructor is None:
         constructor = pythontype
@@ -1802,12 +1470,15 @@ class Variable(Identifier):
 
     __slots__ = ()
 
-    def __new__(cls, value: str) -> "Variable":
+    ##def __new__(cls, value: str) -> "Variable":
+    def __init__(self, value: str) -> "Variable":
+    
         if len(value) == 0:
             raise Exception("Attempted to create variable with empty string as name!")
         if value[0] == "?":
             value = value[1:]
-        return str.__new__(cls, value)
+        ##return str.__new__(cls, value)
+        super().__init__(value)
 
     def __repr__(self) -> str:
         if self.__class__ is Variable:
@@ -1819,8 +1490,8 @@ class Variable(Identifier):
 
     def toPython(self) -> str:
         return "?%s" % self
-
-    def n3(self, namespace_manager: Optional["NamespaceManager"] = None) -> str:
+    ##deleted : Optional["NamespaceManager"]
+    def n3(self, namespace_manager = None) -> str:
         return "?%s" % self
 
     def __reduce__(self) -> Tuple[Type["Variable"], Tuple[str]]:
@@ -1832,150 +1503,10 @@ class Variable(Identifier):
 # we leave "space" for more subclasses of Node elsewhere
 # default-dict to grazefully fail for new subclasses
 _ORDERING: Dict[Type[Node], int] = defaultdict(int)
-_ORDERING.update({BNode: 10, Variable: 20, URIRef: 30, Literal: 40})
+print("Warning: term.py _ORDERING TODO")
+##_ORDERING.update({BNode: 10, Variable: 20, URIRef: 30, Literal: 40})
 
-
-def _isEqualXMLNode(
-    node: Union[
-        None,
-        xml.dom.minidom.Attr,
-        xml.dom.minidom.Comment,
-        xml.dom.minidom.Document,
-        xml.dom.minidom.DocumentFragment,
-        xml.dom.minidom.DocumentType,
-        xml.dom.minidom.Element,
-        xml.dom.minidom.Entity,
-        xml.dom.minidom.Notation,
-        xml.dom.minidom.ProcessingInstruction,
-        xml.dom.minidom.Text,
-    ],
-    other: Union[
-        None,
-        xml.dom.minidom.Attr,
-        xml.dom.minidom.Comment,
-        xml.dom.minidom.Document,
-        xml.dom.minidom.DocumentFragment,
-        xml.dom.minidom.DocumentType,
-        xml.dom.minidom.Element,
-        xml.dom.minidom.Entity,
-        xml.dom.minidom.Notation,
-        xml.dom.minidom.ProcessingInstruction,
-        xml.dom.minidom.Text,
-    ],
-) -> bool:
-    # importing xml.dom.minidom.Node as XMLNode to avoid confusion with
-    # rdflib.term.Node
-    from xml.dom.minidom import Node as XMLNode
-
-    def recurse():
-        # Recursion through the children
-        # In Python2, the semantics of 'map' is such that the check on
-        # length would be unnecessary. In Python 3,
-        # the semantics of map has changed (why, oh why???) and the check
-        # for the length becomes necessary...
-        if len(node.childNodes) != len(other.childNodes):
-            return False
-        for (nc, oc) in map(lambda x, y: (x, y), node.childNodes, other.childNodes):
-            if not _isEqualXMLNode(nc, oc):
-                return False
-        # if we got here then everything is fine:
-        return True
-
-    if node is None or other is None:
-        return False
-
-    if node.nodeType != other.nodeType:
-        return False
-
-    if node.nodeType in [XMLNode.DOCUMENT_NODE, XMLNode.DOCUMENT_FRAGMENT_NODE]:
-        return recurse()
-
-    elif node.nodeType == XMLNode.ELEMENT_NODE:
-        if TYPE_CHECKING:
-            assert isinstance(node, xml.dom.minidom.Element)
-            assert isinstance(other, xml.dom.minidom.Element)
-        # Get the basics right
-        if not (
-            node.tagName == other.tagName and node.namespaceURI == other.namespaceURI
-        ):
-            return False
-
-        # Handle the (namespaced) attributes; the namespace setting key
-        # should be ignored, though
-        # Note that the minidom orders the keys already, so we do not have
-        # to worry about that, which is a bonus...
-        n_keys = [
-            k
-            # type error: Item "Element" of "Union[Document, Element]" has no attribute "attributes"
-            for k in node.attributes.keysNS()  # type: ignore[union-attr]
-            if k[0] != "http://www.w3.org/2000/xmlns/"
-        ]
-        o_keys = [
-            k
-            # type error: Item "Element" of "Union[Document, Element]" has no attribute "attributes"
-            for k in other.attributes.keysNS()  # type: ignore[union-attr]
-            if k[0] != "http://www.w3.org/2000/xmlns/"
-        ]
-        if len(n_keys) != len(o_keys):
-            return False
-        for k in n_keys:
-            if not (
-                k in o_keys
-                and node.getAttributeNS(k[0], k[1]) == other.getAttributeNS(k[0], k[1])
-            ):
-                return False
-
-        # if we got here, the attributes are all right, we can go down
-        # the tree recursively
-        return recurse()
-
-    elif node.nodeType in [
-        XMLNode.TEXT_NODE,
-        XMLNode.COMMENT_NODE,
-        XMLNode.CDATA_SECTION_NODE,
-        XMLNode.NOTATION_NODE,
-    ]:
-        if TYPE_CHECKING:
-            assert isinstance(
-                node,
-                (
-                    xml.dom.minidom.Text,
-                    xml.dom.minidom.Comment,
-                    xml.dom.minidom.CDATASection,
-                    xml.dom.minidom.Notation,
-                ),
-            )
-            assert isinstance(
-                other,
-                (
-                    xml.dom.minidom.Text,
-                    xml.dom.minidom.Comment,
-                    xml.dom.minidom.CDATASection,
-                    xml.dom.minidom.Notation,
-                ),
-            )
-        # type error: Item "Notation" of "Union[Comment, Document, Notation, Text]" has no attribute "data"
-        return node.data == other.data  # type: ignore[union-attr] # FIXME
-
-    elif node.nodeType == XMLNode.PROCESSING_INSTRUCTION_NODE:
-        if TYPE_CHECKING:
-            assert isinstance(node, xml.dom.minidom.ProcessingInstruction)
-            assert isinstance(other, xml.dom.minidom.ProcessingInstruction)
-        return node.data == other.data and node.target == other.target
-
-    elif node.nodeType == XMLNode.ENTITY_NODE:
-        return node.nodeValue == other.nodeValue
-
-    elif node.nodeType == XMLNode.DOCUMENT_TYPE_NODE:
-        if TYPE_CHECKING:
-            assert isinstance(node, xml.dom.minidom.Document)
-            assert isinstance(other, xml.dom.minidom.Document)
-        return node.publicId == other.publicId and node.systemId == other.system.Id
-
-    else:
-        # should not happen, in fact
-        raise Exception("I dont know how to compare XML Node type: %s" % node.nodeType)
-
+##TODO XML code being deleted for the moment
 
 if __name__ == "__main__":
     import doctest

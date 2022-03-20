@@ -34,7 +34,7 @@ Example usage::
 # we should consider streaming the input to deal with arbitrarily large graphs.
 
 from typing import Optional
-import warnings
+#import warnings
 from rdflib.graph import ConjunctiveGraph
 from rdflib.parser import URLInputSource
 import rdflib.parser
@@ -69,8 +69,9 @@ from ..shared.jsonld.keys import (
 
 __all__ = ["JsonLDParser", "to_rdf"]
 
-TYPE_TERM = Term(str(RDF.type), TYPE, VOCAB)  # type: ignore[call-arg]
+TYPE_TERM = Term(str(RDF.type), TYPE, VOCAB, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF, UNDEF)  # type: ignore[call-arg]
 
+#TYPE_TERM = Term(term=UNDEF,id=str(RDF.type), name=UNDEF, type=TYPE, index=UNDEF, langauage=UNDEF, reverse=UNDEF, context=VOCAB, prefix=UNDEF)
 ALLOW_LISTS_OF_LISTS = True  # NOTE: Not allowed in JSON-LD 1.0
 
 

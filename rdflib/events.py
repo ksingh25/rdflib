@@ -40,7 +40,9 @@ class Event(object):
     """
 
     def __init__(self, **kw):
-        self.__dict__.update(kw)
+        ##TODO fixeme __dict__"
+        ##self.__dict__.update(kw)
+        pass
 
     def __repr__(self):
         attrs = sorted(self.__dict__.keys())

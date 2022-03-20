@@ -27,30 +27,33 @@ Modified to work with rdflib by Gunnar Aastrand Grimnes
 Copyright 2010, Gunnar A. Grimnes
 
 """
-import codecs
+import sys
 import os
 import re
-import sys
+import time
+##import codecs
+from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar, Union
 
 # importing typing for `typing.List` because `List`` is used for something else
 import typing
-from decimal import Decimal
-from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Optional, TypeVar, Union
+
+##from decimal import Decimal
+
 from uuid import uuid4
 
-from rdflib.compat import long_type
 from rdflib.exceptions import ParserError
-from rdflib.graph import ConjunctiveGraph, Graph, QuotedGraph
 from rdflib.term import (
-    _XSD_PFX,
-    BNode,
     Identifier,
-    Literal,
     Node,
     URIRef,
+    BNode,
+    Literal,
     Variable,
+    _XSD_PFX,
     _unique_id,
 )
+from rdflib.graph import QuotedGraph, ConjunctiveGraph, Graph
+##from rdflib.compat import long_type
 
 __all__ = [
     "BadSyntax",
@@ -66,8 +69,8 @@ __all__ = [
 
 from rdflib.parser import Parser
 
-if TYPE_CHECKING:
-    from rdflib.parser import InputSource
+##if TYPE_CHECKING:
+##    from rdflib.parser import InputSource
 
 AnyT = TypeVar("AnyT")
 
@@ -129,11 +132,17 @@ def join(here, there):
     u'http://example.org/#Andr\\xe9'
     """
 
-    #    assert(here.find("#") < 0), \
-    #        "Base may not contain hash: '%s'" % here  # why must caller splitFrag?
+    assert(here.find("#") < 0), \
+            "Base may not contain hash: '%s'" % here  # why must caller splitFrag?
+    ##modif
+    if(isinstance(there, URIRef)):
+        copythere = bytes(there)
+    else:
+        copythere = bytes(there, "utf-8")
 
-    slashl = there.find("/")
-    colonl = there.find(":")
+    slashl = copythere.find(b'/')##
+    colonl = copythere.find(b':')
+    ##modif end
 
     # join(base, 'foo:/') -- absolute
     if colonl >= 0 and (slashl < 0 or colonl < slashl):
@@ -202,7 +211,7 @@ def base():
 
     """
     # return "file://" + hostname + os.getcwd() + "/"
-    return "file://" + _fixslash(os.getcwd()) + "/"
+    return "file://" ##FIXME+ _fixslash(os.getcwd()) + "/"
 
 
 def _fixslash(s):
@@ -343,6 +352,7 @@ N3CommentCharacter = "#"  # For unix script  # ! compatibility
 #
 # Regular expressions:
 eol = re.compile(r"[ \t]*(#[^\n]*)?\r?\n")  # end  of line, poss. w/comment
+##eol = re.compile('\n*')
 eof = re.compile(r"[ \t]*(#[^\n]*)?$")  # end  of file, poss. w/comment
 ws = re.compile(r"[ \t]*")  # Whitespace not including NL
 signed_integer = re.compile(r"[-+]?[0-9]+")  # integer
@@ -352,7 +362,7 @@ exponent_syntax = re.compile(
     r"[-+]?(?:[0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)(?:e|E)[-+]?[0-9]+"
 )
 digitstring = re.compile(r"[0-9]+")  # Unsigned integer
-interesting = re.compile(r"""[\\\r\n\"\']""")
+interesting = re.compile("""[\\\r\n\"\']""") ##removing r due micropython incompatibility
 langcode = re.compile(r"[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*")
 
 
@@ -412,7 +422,6 @@ class SinkParser:
                 self._baseURI = thisDoc
             else:
                 self._baseURI = None
-
         assert not self._baseURI or ":" in self._baseURI
 
         if not self._genPrefix:
@@ -472,7 +481,7 @@ class SinkParser:
         if not isinstance(octets, str):
             s = octets.decode("utf-8")
             # NB already decoded, so \ufeff
-            if len(s) > 0 and s[0] == codecs.BOM_UTF8.decode("utf-8"):
+            if len(s) > 0: ##FIXME and s[0] == codecs.BOM_UTF8.decode("utf-8"):
                 s = s[1:]
         else:
             s = octets
@@ -482,10 +491,9 @@ class SinkParser:
             j = self.skipSpace(s, i)
             if j < 0:
                 return
-
+	
             i = self.directiveOrStatement(s, j)
             if i < 0:
-                # print("# next char: %s" % s[j])
                 self.BadSyntax(s, j, "expected directive or statement")
 
     def directiveOrStatement(self, argstr: str, h: int) -> int:
@@ -741,7 +749,7 @@ class SinkParser:
 
     def makeStatement(self, quadruple):
         # $$$$$$$$$$$$$$$$$$$$$
-        # print "# Parser output: ", `quadruple`
+        #print ("# Parser output: ", quadruple)
         self._store.makeStatement(quadruple, why=self._reason2)
 
     def statement(self, argstr: str, i: int) -> int:
@@ -1200,7 +1208,6 @@ class SinkParser:
         i = self.skipSpace(argstr, i)
         if i < 0:
             return -1
-
         if argstr[i] == "?":
             v: typing.List[Any] = []
             j = self.variable(argstr, i, v)
@@ -1218,7 +1225,7 @@ class SinkParser:
                 # expand unicode escapes
                 uref = unicodeEscape8.sub(unicodeExpand, uref)
                 uref = unicodeEscape4.sub(unicodeExpand, uref)
-
+                
                 if self._baseURI:
                     uref = join(self._baseURI, uref)  # was: uripath.join
                 else:
@@ -1262,15 +1269,19 @@ class SinkParser:
             return -1
 
         while 1:
-            m = eol.match(argstr, i)
+            ##m = eol.match(argstr, i)
+            m = eol.match(argstr[i:])
             if m is None:
                 break
             self.lines += 1
-            self.startOfLine = i = m.end()  # Point to first character unmatched
-        m = ws.match(argstr, i)
+            ##self.startOfLine = i = m.end()  # Point to first character unmatched
+            self.startOfLine = i = (m.end() + i + 1) #m.end() is relative due to use of argstr[i:]
+        ##m = ws.match(argstr, i)
+        m = ws.match(argstr[i:])
         if m is not None:
-            i = m.end()
-        m = eof.match(argstr, i)
+            i = m.end() + i + 1 #due to the use of argstr[i:]
+        ##m = eof.match(argstr, i)
+        m = eof.match(argstr[i:])
         return i if m is None else -1
 
     def variable(self, argstr: str, i: int, res):
@@ -1453,6 +1464,7 @@ class SinkParser:
                 res.append(self._store.newLiteral(s))  # type: ignore[call-arg] # TODO FIXME
                 return j
             else:
+                print("error in n3.object() ch:", ch)
                 return -1
 
     def nodeOrLiteral(self, argstr: str, i: int, res):
@@ -1469,22 +1481,29 @@ class SinkParser:
 
             ch = argstr[i]
             if ch in numberCharsPlus:
-                m = exponent_syntax.match(argstr, i)
+                ##m = exponent_syntax.match(argstr, i)
+                m = exponent_syntax.match(argstr[i:])
                 if m:
-                    j = m.end()
+                    ##j = m.end()
+                    j = m.end() + i + 1
                     res.append(float(argstr[i:j]))
                     return j
 
-                m = decimal_syntax.match(argstr, i)
+                ##m = decimal_syntax.match(argstr, i)
+                m = decimal_syntax.match(argstr[i:])
                 if m:
-                    j = m.end()
-                    res.append(Decimal(argstr[i:j]))
+                    ##j = m.end()
+                    j = m.end() + i + 1
+                    print("Warning: N3 nodeorLiteral Decimal not supported")
+                    ##res.append(Decimal(argstr[i:j]))
                     return j
 
-                m = integer_syntax.match(argstr, i)
+                ## m = integer_syntax.match(argstr, i)
+                m = integer_syntax.match(argstr[i:])
                 if m:
-                    j = m.end()
-                    res.append(long_type(argstr[i:j]))
+                    ##j = m.end()
+                    j = m.end() + i + 1
+                    res.append(int(argstr[i:j])) ##long_type --> long
                     return j
 
                 # return -1  ## or fall through?
@@ -1502,7 +1521,8 @@ class SinkParser:
                 j, s = self.strconst(argstr, i, delim)
                 lang = None
                 if argstr[j] == "@":  # Language?
-                    m = langcode.match(argstr, j + 1)
+                    ##m = langcode.match(argstr, j + 1)
+                    m = langcode.match(argstr[(j + 1):])
                     if m is None:
                         raise BadSyntax(
                             self._thisDoc,
@@ -1511,9 +1531,10 @@ class SinkParser:
                             i,
                             "Bad language code syntax on string " + "literal, after @",
                         )
-                    i = m.end()
+                    ##i = m.end()
+                    i = m.end() + j + 1
                     lang = argstr[j + 1 : i]
-                    j = i
+                    j = i + 1
                 if argstr[j : j + 2] == "^^":
                     res2: typing.List[Any] = []
                     j = self.uri_ref2(argstr, j + 2, res2)  # Read datatype URI
@@ -1565,14 +1586,15 @@ class SinkParser:
                     ustr += delim1
                     continue
 
-            m = interesting.search(argstr, j)  # was argstr[j:].
+            ##m = interesting.search(argstr, j)  # was argstr[j:].
+            m = interesting.search(argstr[j:])
             # Note for pos param to work, MUST be compiled  ... re bug?
             assert m, "Quote expected in string at ^ in %s^%s" % (
                 argstr[j - 20 : j],
                 argstr[j : j + 20],
             )  # at least need a quote
 
-            i = m.start()
+            i = m.start() + j ##adding j
             try:
                 ustr += argstr[j:i]
             except UnicodeError:
@@ -1600,6 +1622,7 @@ class SinkParser:
                 j = i + 1
                 continue
             elif ch in {"\r", "\n"}:
+                print("strange! new line found in string constant")
                 if delim == delim1:
                     raise BadSyntax(
                         self._thisDoc,
@@ -1788,9 +1811,9 @@ class RDFSink(object):
 
     def newLiteral(self, s: str, dt: Optional[URIRef], lang: Optional[str]) -> Literal:
         if dt:
-            return Literal(s, datatype=dt)
+            return Literal(s, dt)
         else:
-            return Literal(s, lang=lang)
+            return Literal(s, lang)
 
     def newList(self, n: typing.List[Any], f: Optional[Formula]):
         nil = self.newSymbol("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil")
@@ -1827,7 +1850,6 @@ class RDFSink(object):
         o = self.normalise(f, o)
 
         if f == self.rootFormula:
-            # print s, p, o, '.'
             self.graph.add((s, p, o))
         elif isinstance(f, Formula):
             f.quotedgraph.add((s, p, o))
@@ -1844,16 +1866,16 @@ class RDFSink(object):
             s = Literal(str(n).lower(), datatype=BOOLEAN_DATATYPE)
             return s
 
-        if isinstance(n, int) or isinstance(n, long_type):
+        if isinstance(n, int):## or isinstance(n, long_type):
             s = Literal(str(n), datatype=INTEGER_DATATYPE)
             return s
 
-        if isinstance(n, Decimal):
-            value = str(n)
-            if value == "-0":
-                value = "0"
-            s = Literal(value, datatype=DECIMAL_DATATYPE)
-            return s
+        ##if isinstance(n, Decimal):
+        ##    value = str(n)
+        ##    if value == "-0":
+        ##        value = "0"
+        ##    s = Literal(value, datatype=DECIMAL_DATATYPE)
+        ##    return s
 
         if isinstance(n, float):
             s = Literal(str(n), datatype=DOUBLE_DATATYPE)

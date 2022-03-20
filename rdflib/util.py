@@ -29,17 +29,17 @@ Statement and component type checkers
 
 """
 
-from calendar import timegm
-from time import altzone
-from typing import Optional
+##from calendar import timegm
+##from time import altzone
+##from typing import Optional
 
 # from time import daylight
 from time import gmtime
 from time import localtime
 from time import time
-from time import timezone
+##from time import timezone
 
-from os.path import splitext
+##from os.path import splitext
 
 from rdflib.exceptions import ContextTypeError
 from rdflib.exceptions import ObjectTypeError
@@ -51,7 +51,7 @@ from rdflib.namespace import NamespaceManager
 from rdflib.term import BNode
 from rdflib.term import Literal
 from rdflib.term import URIRef
-from rdflib.compat import sign
+##from rdflib.compat import sign
 
 __all__ = [
     "list2set",
@@ -295,9 +295,13 @@ def date_time(t=None, local_time_zone=False):
     if local_time_zone:
         time_tuple = localtime(t)
         if time_tuple[8]:
-            tz_mins = altzone // 60
+            print("util.py: altzone not supported. Taking it as 0")
+            tz_mins = 0
+            ##tz_mins = altzone // 60
         else:
-            tz_mins = timezone // 60
+            print("util.py: timezone not supported. Taking it as 0")
+            tz_mins = 0
+            ##tz_mins = timezone // 60
         tzd = "-%02d:%02d" % (tz_mins // 60, tz_mins % 60)
     else:
         time_tuple = gmtime(t)
@@ -308,7 +312,7 @@ def date_time(t=None, local_time_zone=False):
     return s
 
 
-def parse_date_time(val):
+##def parse_date_time(val):
     """always returns seconds in UTC
 
     # tests are written like this to make any errors easier to understand
@@ -326,7 +330,7 @@ def parse_date_time(val):
     >>> parse_date_time("2005-09-05T10:42:00") - 1125916920.0
     0.0
     """
-
+"""
     if "T" not in val:
         val += "T00:00:00Z"
 
@@ -350,7 +354,7 @@ def parse_date_time(val):
     )
     t = t + tz_offset
     return t
-
+"""
 
 SUFFIX_FORMAT_MAP = {
     "xml": "xml",
@@ -420,6 +424,7 @@ def _get_ext(fpath, lower=True):
         >>> _get_ext(".rdf")
         'rdf'
     """
+    """
     ext = splitext(fpath)[-1]
     if ext == "" and fpath.startswith("."):
         ext = fpath
@@ -428,7 +433,8 @@ def _get_ext(fpath, lower=True):
     if ext.startswith("."):
         ext = ext[1:]
     return ext
-
+    """
+    print("util._get_ext() not supported")
 
 def find_roots(graph, prop, roots=None):
     """

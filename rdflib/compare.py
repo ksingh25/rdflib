@@ -8,70 +8,6 @@ comparisons.
 Warning: the time to canonicalize bnodes may increase exponentially on
 degenerate larger graphs. Use with care!
 
-Example of comparing two graphs::
-
-    >>> g1 = Graph().parse(format='n3', data='''
-    ...     @prefix : <http://example.org/ns#> .
-    ...     <http://example.org> :rel
-    ...         <http://example.org/same>,
-    ...         [ :label "Same" ],
-    ...         <http://example.org/a>,
-    ...         [ :label "A" ] .
-    ... ''')
-    >>> g2 = Graph().parse(format='n3', data='''
-    ...     @prefix : <http://example.org/ns#> .
-    ...     <http://example.org> :rel
-    ...         <http://example.org/same>,
-    ...         [ :label "Same" ],
-    ...         <http://example.org/b>,
-    ...         [ :label "B" ] .
-    ... ''')
-    >>>
-    >>> iso1 = to_isomorphic(g1)
-    >>> iso2 = to_isomorphic(g2)
-
-These are not isomorphic::
-
-    >>> iso1 == iso2
-    False
-
-Diff the two graphs::
-
-    >>> in_both, in_first, in_second = graph_diff(iso1, iso2)
-
-Present in both::
-
-    >>> def dump_nt_sorted(g):
-    ...     for l in sorted(g.serialize(format='nt').splitlines()):
-    ...         if l: print(l.decode('ascii'))
-
-    >>> dump_nt_sorted(in_both) #doctest: +SKIP
-    <http://example.org>
-        <http://example.org/ns#rel> <http://example.org/same> .
-    <http://example.org>
-        <http://example.org/ns#rel> _:cbcaabaaba17fecbc304a64f8edee4335e .
-    _:cbcaabaaba17fecbc304a64f8edee4335e
-        <http://example.org/ns#label> "Same" .
-
-Only in first::
-
-    >>> dump_nt_sorted(in_first) #doctest: +SKIP
-    <http://example.org>
-        <http://example.org/ns#rel> <http://example.org/a> .
-    <http://example.org>
-        <http://example.org/ns#rel> _:cb124e4c6da0579f810c0ffe4eff485bd9 .
-    _:cb124e4c6da0579f810c0ffe4eff485bd9
-        <http://example.org/ns#label> "A" .
-
-Only in second::
-
-    >>> dump_nt_sorted(in_second) #doctest: +SKIP
-    <http://example.org>
-        <http://example.org/ns#rel> <http://example.org/b> .
-    <http://example.org>
-        <http://example.org/ns#rel> _:cb558f30e21ddfc05ca53108348338ade8 .
-    _:cb558f30e21ddfc05ca53108348338ade8
-        <http://example.org/ns#label> "B" .
 """
 from __future__ import absolute_import
 from __future__ import division
@@ -93,7 +29,7 @@ __all__ = [
 ]
 
 from rdflib.graph import Graph, ConjunctiveGraph, ReadOnlyGraphAggregate
-from rdflib.term import BNode, Node, URIRef, IdentifiedNode
+from rdflib.term import BNode, Node, URIRef
 from hashlib import sha256
 
 from datetime import datetime
@@ -214,7 +150,7 @@ Stats = Dict[str, Union[int, str]]
 class Color:
     def __init__(
         self,
-        nodes: List[IdentifiedNode],
+        nodes: List[Node],
         hashfunc: HashFunc,
         color: ColorItemTuple = (),
         hash_cache: HashCache = None,
@@ -511,9 +447,7 @@ class _TripleCanonicalizer(object):
         if stats is not None:
             stats["color_count"] = len(coloring)
 
-        bnode_labels: Dict[Node, str] = dict(
-            [(c.nodes[0], c.hash_color()) for c in coloring]
-        )
+        bnode_labels = dict([(c.nodes[0], c.hash_color()) for c in coloring])
         if stats is not None:
             stats["canonicalize_triples_runtime"] = _total_seconds(
                 datetime.now() - start_coloring
@@ -523,9 +457,7 @@ class _TripleCanonicalizer(object):
             yield result
 
     def _canonicalize_bnodes(
-        self,
-        triple: Tuple[IdentifiedNode, IdentifiedNode, Node],
-        labels: Dict[Node, str],
+        self, triple: Tuple[Node, Node, Node], labels: Dict[Node, str]
     ):
         for term in triple:
             if isinstance(term, BNode):
@@ -549,31 +481,6 @@ def isomorphic(graph1, graph2):
 
     Uses an algorithm to compute unique hashes which takes bnodes into account.
 
-    Examples::
-
-        >>> g1 = Graph().parse(format='n3', data='''
-        ...     @prefix : <http://example.org/ns#> .
-        ...     <http://example.org> :rel <http://example.org/a> .
-        ...     <http://example.org> :rel <http://example.org/b> .
-        ...     <http://example.org> :rel [ :label "A bnode." ] .
-        ... ''')
-        >>> g2 = Graph().parse(format='n3', data='''
-        ...     @prefix ns: <http://example.org/ns#> .
-        ...     <http://example.org> ns:rel [ ns:label "A bnode." ] .
-        ...     <http://example.org> ns:rel <http://example.org/b>,
-        ...             <http://example.org/a> .
-        ... ''')
-        >>> isomorphic(g1, g2)
-        True
-
-        >>> g3 = Graph().parse(format='n3', data='''
-        ...     @prefix : <http://example.org/ns#> .
-        ...     <http://example.org> :rel <http://example.org/a> .
-        ...     <http://example.org> :rel <http://example.org/b> .
-        ...     <http://example.org> :rel <http://example.org/c> .
-        ... ''')
-        >>> isomorphic(g1, g3)
-        False
     """
     gd1 = _TripleCanonicalizer(graph1).to_hash()
     gd2 = _TripleCanonicalizer(graph2).to_hash()

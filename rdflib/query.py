@@ -1,9 +1,9 @@
 import os
 import itertools
 import shutil
-import tempfile
-import warnings
-import types
+#import tempfile
+#import warnings
+#import types
 from typing import IO, TYPE_CHECKING, List, Optional, Union, cast
 
 from io import BytesIO
@@ -12,9 +12,9 @@ from urllib.parse import urlparse
 
 __all__ = ["Processor", "Result", "ResultParser", "ResultSerializer", "ResultException"]
 
-if TYPE_CHECKING:
-    from rdflib.graph import Graph
-    from rdflib.term import Variable
+##if TYPE_CHECKING:
+##    from rdflib.graph import Graph
+##    from rdflib.term import Variable
 
 
 class Processor(object):
@@ -177,24 +177,24 @@ class Result(object):
         self.askAnswer: bool = None  # type: ignore[assignment]
         self.graph: "Graph" = None  # type: ignore[assignment]
 
-    @property
-    def bindings(self):
-        """
-        a list of variable bindings as dicts
-        """
+    def _get_bindings(self):
         if self._genbindings:
             self._bindings += list(self._genbindings)
             self._genbindings = None
 
         return self._bindings
 
-    @bindings.setter
-    def bindings(self, b):
-        if isinstance(b, (types.GeneratorType, itertools.islice)):
-            self._genbindings = b
-            self._bindings = []
-        else:
+    def _set_bindings(self, b):
+        ##TODO
+        ##if isinstance(b, (types.GeneratorType, itertools.islice)):
+        ##    self._genbindings = b
+        ##    self._bindings = []
+        ##else:
             self._bindings = b
+
+    bindings = property(
+        _get_bindings, _set_bindings, doc="a list of variable bindings as dicts"
+    )
 
     @staticmethod
     def parse(
@@ -264,15 +264,16 @@ class Result(object):
                     "WARNING: not saving as location" + "is not a local file reference"
                 )
                 return None
-            fd, name = tempfile.mkstemp()
-            stream = os.fdopen(fd, "wb")
-            serializer.serialize(stream, encoding=encoding, **args)
-            stream.close()
-            if hasattr(shutil, "move"):
-                shutil.move(name, path)
-            else:
-                shutil.copy(name, path)
-                os.remove(name)
+            print("writing to a file not supported")
+            ##fd, name = tempfile.mkstemp()
+            #stream = os.fdopen(fd, "wb")
+            #serializer.serialize(stream, encoding=encoding, **args)
+            #stream.close()
+            #if hasattr(shutil, "move"):
+            #    shutil.move(name, path)
+            #else:
+            #    shutil.copy(name, path)
+            #    os.remove(name)
         return None
 
     def __len__(self):
@@ -313,7 +314,7 @@ class Result(object):
         if self.type in ("CONSTRUCT", "DESCRIBE") and self.graph is not None:
             return self.graph.__getattr__(self, name)
         elif self.type == "SELECT" and name == "result":
-            warnings.warn(
+            print(##warnings.warn(
                 "accessing the 'result' attribute is deprecated."
                 " Iterate over the object instead.",
                 DeprecationWarning,

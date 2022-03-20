@@ -280,7 +280,7 @@ class Memory(Store):
             if None in ctxs and (context is None or len(ctxs) == 1):
                 # remove from default graph too
                 self.__remove_triple_context(triple, None)
-            if len(self.__get_context_for_triple(triple)) == 0:
+            if len(list(self.__get_context_for_triple(triple))) == 0:##using list() which may not be efficient
                 del self.__spo[subject][predicate][object_]
                 del self.__pos[predicate][object_][subject]
                 del self.__osp[object_][subject][predicate]

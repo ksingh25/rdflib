@@ -50,10 +50,10 @@ from typing import (
     overload,
 )
 
-if sys.version_info < (3, 8):
-    from importlib_metadata import entry_points, EntryPoint
-else:
-    from importlib.metadata import entry_points, EntryPoint
+##if sys.version_info < (3, 8):
+    ##from importlib_metadata import entry_points, EntryPoint
+##else:
+##    from importlib.metadata import entry_points, EntryPoint
 
 __all__ = ["register", "get", "plugins", "PluginException", "Plugin", "PKGPlugin"]
 
@@ -78,7 +78,7 @@ class PluginException(Error):
 PluginT = TypeVar("PluginT")
 
 
-class Plugin(Generic[PluginT]):
+class Plugin:##Generic[PluginT]):
     def __init__(
         self, name: str, kind: Type[PluginT], module_path: str, class_name: str
     ):
@@ -95,8 +95,8 @@ class Plugin(Generic[PluginT]):
         return self._class
 
 
-class PKGPlugin(Plugin[PluginT]):
-    def __init__(self, name: str, kind: Type[PluginT], ep: "EntryPoint"):
+class PKGPlugin:##[PluginT]):
+    def __init__(self, name: str, kind: Type[PluginT], ep): ##"EntryPoint"):
         self.name = name
         self.kind = kind
         self.ep = ep
@@ -129,28 +129,28 @@ def get(name: str, kind: Type[PluginT]) -> Type[PluginT]:
     return p.getClass()
 
 
-all_entry_points = entry_points()
-if hasattr(all_entry_points, "select"):
-    for entry_point, kind in rdflib_entry_points.items():
-        for ep in all_entry_points.select(group=entry_point):
-            _plugins[(ep.name, kind)] = PKGPlugin(ep.name, kind, ep)
-else:
-    # Prior to Python 3.10, this returns a dict instead of the selection interface, which is slightly slower
-    if TYPE_CHECKING:
-        assert isinstance(all_entry_points, dict)
-    for entry_point, kind in rdflib_entry_points.items():
-        for ep in all_entry_points.get(entry_point, []):
-            _plugins[(ep.name, kind)] = PKGPlugin(ep.name, kind, ep)
+##all_entry_points = entry_points()
+##if hasattr(all_entry_points, "select"):
+##    for entry_point, kind in rdflib_entry_points.items():
+##        for ep in all_entry_points.select(group=entry_point):
+##            _plugins[(ep.name, kind)] = PKGPlugin(ep.name, kind, ep)
+##else:
+##    # Prior to Python 3.10, this returns a dict instead of the selection interface, which is slightly slower
+##    if TYPE_CHECKING:
+##        assert isinstance(all_entry_points, dict)
+##    for entry_point, kind in rdflib_entry_points.items():
+##        for ep in all_entry_points.get(entry_point, []):
+##           _plugins[(ep.name, kind)] = PKGPlugin(ep.name, kind, ep)
 
 
-@overload
+##@overload
 def plugins(
     name: Optional[str] = ..., kind: Type[PluginT] = ...
 ) -> Iterator[Plugin[PluginT]]:
     ...
 
 
-@overload
+##@overload
 def plugins(name: Optional[str] = ..., kind: None = ...) -> Iterator[Plugin]:
     ...
 

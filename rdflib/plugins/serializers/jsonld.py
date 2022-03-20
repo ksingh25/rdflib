@@ -35,7 +35,7 @@ Example usage::
 # but we should consider streaming the output to deal with arbitrarily large
 # graphs.
 
-import warnings
+#import warnings
 
 from rdflib.serializer import Serializer
 from rdflib.graph import Graph
@@ -67,7 +67,8 @@ class JsonLDSerializer(Serializer):
         # TODO: docstring w. args and return value
         encoding = encoding or "utf-8"
         if encoding not in ("utf-8", "utf-16"):
-            warnings.warn(
+            print(
+            #warnings.warn(
                 "JSON should be encoded as unicode. " f"Given encoding was: {encoding}"
             )
 
@@ -92,10 +93,10 @@ class JsonLDSerializer(Serializer):
 
         data = json.dumps(
             obj,
-            indent=indent,
+            ##indent=indent,
             separators=separators,
-            sort_keys=sort_keys,
-            ensure_ascii=ensure_ascii,
+            ##sort_keys=sort_keys,
+            ##ensure_ascii=ensure_ascii,
         )
 
         stream.write(data.encode(encoding, "replace"))
@@ -207,7 +208,7 @@ class Converter(object):
 
     def process_subject(self, graph, s, nodemap):
         if isinstance(s, URIRef):
-            node_id = self.context.shrink_iri(s)
+            node_id = str(self.context.shrink_iri(s))##FIXME
         elif isinstance(s, BNode):
             node_id = s.n3()
         else:
@@ -223,7 +224,6 @@ class Converter(object):
 
         for p, o in graph.predicate_objects(s):
             self.add_to_node(graph, s, p, o, node, nodemap)
-
         return node
 
     def add_to_node(self, graph, s, p, o, s_node, nodemap):
@@ -245,7 +245,6 @@ class Converter(object):
 
         node = None
         use_set = not context.active
-
         if term:
             p_key = term.name
 
@@ -286,7 +285,6 @@ class Converter(object):
                 if isinstance(o, URIRef):
                     node = context.to_symbol(o)
                 p_key = context.type_key
-
         if node is None:
             node = self.to_raw_value(graph, s, o, nodemap)
 
@@ -338,7 +336,7 @@ class Converter(object):
             return {context.id_key: o.n3()}
         elif isinstance(o, URIRef):
             # TODO: embed if o != startnode (else reverse)
-            return {context.id_key: context.shrink_iri(o)}
+            return {str(context.id_key): str(context.shrink_iri(o))} ##adding str()
         elif isinstance(o, Literal):
             # TODO: if compact
             native = self.use_native_types and o.datatype in PLAIN_LITERAL_TYPES
