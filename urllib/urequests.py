@@ -27,7 +27,6 @@ class URLOpener:
             addr = socket.getaddrinfo(host, int(port))[0][-1]
             s = socket.socket()
             s.settimeout(5)
-            print("try http connection", host, port, socket.inet_ntop(socket.AF_INET, addr)) ##
             s.connect(addr)
         else:
             ##sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_SEC)
