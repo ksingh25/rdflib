@@ -1,17 +1,16 @@
 # mrdflib
-mRDFLib is a port of [RDFLib](https://github.com/RDFLib/rdflib) for micropython for working with RDF. 
+mRDFLib is a fork and port of [RDFLib](https://github.com/RDFLib/rdflib) for micropython. It is a library for working with RDF. 
 It is a work in progress and the goal is to make the code as well as memory footprint as small as possible. 
-Currently several functionalities like XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not supported. 
+Currently several functionalities like XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not working. 
 
-mRDFLib has been tested by compiling [micropython](https://github.com/micropython/micropython) on Linux and ESP32 (with 4MB PSRAM for example esp32-one, ESP32 cam, ESP32-S3 with PSRAM etc. Note that ESP32-S3 is new and needs a separate compilation of firmware.).
+mRDFLib has been tested by compiling [micropython](https://github.com/micropython/micropython) on Linux and ESP32 (with 4MB PSRAM for example esp32-one, ESP32 cam, ESP32-S3 with PSRAM etc. Note that ESP32-S3 is new and needs a separate firmware compilation.).
 
 ## Prerequisites
 To test it quickly, one either needs linux with python3 or ESP32 with 4MB of SPIRAM. 
-For testing over ESP32, one needs to install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf), adafruit-ampy, picocom).
+For testing over ESP32, one needs to install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf) as well as tools like adafruit-ampy, picocom (these two can be installed using `sudo apt-get install adapfruit-ampy picocom`).
 
 ## Linux 
-To test it on Linux, please compile the [micropython](https://github.com/micropython/micropython) with advanced REGEX options enabled. This can be done by modifying
-micropython/ports/unix/mpconfigport.h
+To test it on Linux, please compile the [micropython](https://github.com/micropython/micropython) with all REGEX options supported by micropython. This can be done by modifying the file micropython/ports/unix/mpconfigport.h
 
 and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 
@@ -20,10 +19,12 @@ and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 #define MICROPY_PY_URE_MATCH_GROUPS         (1)
 #define MICROPY_PY_URE_MATCH_SPAN_START_END (1)
 ```
-Then compile micropython
+Then compile micropython following the README.md instruction in the folder micropython/ports/unix.
 
 ## ESP32
-To test it on ESP32, please install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf), download [micropython code](https://github.com/micropython/micropython) 
+To test it on ESP32, please install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf).
+
+After that please download [micropython code](https://github.com/micropython/micropython) 
 cd to `micropython/ports/esp32` directory and then compile and flash the firware
 check some intial steps [here](https://github.com/micropython/micropython/tree/master/ports/esp32/README.md)
 
@@ -62,8 +63,9 @@ The step is to upload the files on ESP32.
 $ git clone https://github.com/ksingh25/mrdflib.git
 $ cd mRDFLib
 ```
-Upload all the files manually or use the copy.py script or WebREPL over WiFi. Uploading files over UART takes around 7 to 10 minutes. 
-mRDFLib is around 800KB and thus the next step will be to reduce its size.
+Upload all the files manually or use the copy.py script or WebREPL over WiFi. 
+**Uploading files over UART takes around 7 to 10 minutes.** In future, baudrate may be increased.  
+mRDFLib is around 800KB and thus we will also reduce its size.
 
 Assuming that the port is /dev/ttyUSB0:
 
@@ -71,13 +73,16 @@ Assuming that the port is /dev/ttyUSB0:
 
 or copy them one by one using ampy:
 ```
-$ ampy --port /dev/ttyUSB0 --baud 115200 run wlan.py
+$ ampy --port /dev/ttyUSB0 --baud 115200 put wlan.py
 ...
 ```
 
 
 ## Test some examples
 You may enter the terminal using picocom.
+**Note that first import and first script takes several seconds to run.**
+After that it is much faster.
+One may directly upload the compiled .pyc files for speed.
 
 `$ picocom -b 115200 /dev/ttyUSB0`
 
