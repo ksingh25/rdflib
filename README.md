@@ -85,7 +85,7 @@ $ ampy --port /dev/ttyUSB0 --baud 115200 put wlan.py
 You may enter the terminal using picocom.
 **Note that first import and first script takes several seconds to run.**
 After that it is much faster.
-One may directly upload the compiled .pyc files for speed.
+One may try directly uploading the compiled .pyc files for better execution speed.
 
 `$ picocom -b 115200 /dev/ttyUSB0`
 
