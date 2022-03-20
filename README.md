@@ -38,7 +38,7 @@ Then to build MicroPython for the ESP32 run (assuming IDF is already installed):
 ```
 $ cd ports/esp32
 ```
-modify mpconfigport.h and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
+modify mpconfigport.h and add the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 
 ```
 #define MICROPY_PY_URE_SUB 40
@@ -71,7 +71,7 @@ Assuming that the port is /dev/ttyUSB0:
 
 or copy them one by one using ampy:
 ```
-$ ampy --port /dev/ttyACM0 --baud 115200 run wlan.py
+$ ampy --port /dev/ttyUSB0 --baud 115200 run wlan.py
 ...
 ```
 
