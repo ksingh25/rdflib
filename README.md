@@ -22,7 +22,10 @@ and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 Then compile micropython following the README.md instruction in the folder micropython/ports/unix.
 
 ## ESP32
-To test it on ESP32, please install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf).
+For quick test, you may flash ESP32 with the firmware that was already compiled and is [available here](https://github.com/ksingh25/Files). Mostly firmware.bin is needed. One needs to flash ESP32 with ths firmware. In this case one may skip the instructions 
+for compilation provided in this section.
+
+To compile micropython and test it on ESP32, please first install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf).
 
 After that please download [micropython code](https://github.com/micropython/micropython) 
 cd to `micropython/ports/esp32` directory and then compile and flash the firware
