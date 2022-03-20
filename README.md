@@ -1,7 +1,7 @@
 # mrdflib
 mRDFLib is a fork and port of [RDFLib](https://github.com/RDFLib/rdflib) for micropython. It is a library for working with RDF. 
 It is a work in progress and the goal is to make the code as well as memory footprint as small as possible. 
-Currently several functionalities like XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not working. 
+Currently several functionalities like XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not working. Notation3 parser needs some more debugging.
 
 mRDFLib has been tested by compiling [micropython](https://github.com/micropython/micropython) on Linux and ESP32 (with 4MB PSRAM for example esp32-one, ESP32 cam, ESP32-S3 with PSRAM etc. Note that ESP32-S3 is new and needs a separate firmware compilation.).
 
@@ -146,6 +146,10 @@ Now to the ESP32 (using picocom)
 Please put the ip address of the local pc (hosting modified foaf.n3) in the file example_parse_foaf.py and upload it to ESP32.
 
 `ampy --port /dev/ttyUSB0 --baud 115200 put example_parse_foaf.py`
+
+Then please add WiFi SSID and password to wlan.py and upload it to ESP32.
+
+`ampy --port /dev/ttyUSB0 --baud 115200 put wlan.py`
 
 Connect to ESP32 terminal:
 
