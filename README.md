@@ -7,7 +7,7 @@ mRDFLib has been tested by compiling [micropython](https://github.com/micropytho
 
 ## Prerequisites
 To test it quickly, one either needs linux with python3 or ESP32 with 4MB of SPIRAM. 
-For testing over ESP32, one needs to install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf) as well as tools like adafruit-ampy, picocom (these two can be installed using `sudo apt-get install adapfruit-ampy picocom`).
+For testing over ESP32, one needs to install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf) as well as tools like adafruit-ampy, picocom The last two can be installed using `sudo apt-get install adapfruit-ampy picocom`. For installing IDF one has to follow instructions provided in the README.md file in micropython/ports/esp32/ folder of micropython.
 
 ## Linux 
 To test it on Linux, please compile the [micropython](https://github.com/micropython/micropython) with all REGEX options supported by micropython. This can be done by modifying the file micropython/ports/unix/mpconfigport.h
@@ -19,10 +19,10 @@ and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 #define MICROPY_PY_URE_MATCH_GROUPS         (1)
 #define MICROPY_PY_URE_MATCH_SPAN_START_END (1)
 ```
-Then compile micropython following the README.md instruction in the folder micropython/ports/unix.
+Then compile micropython following the README.md instructions in the folder micropython/ports/unix.
 
 ## ESP32
-For quick test, you may flash ESP32 with the firmware that was already compiled and is [available here](https://github.com/ksingh25/Files). Mostly firmware.bin is needed. One needs to flash ESP32 with ths firmware. In this case one may skip the instructions 
+For quick test, you may flash ESP32 with the firmware that was already compiled and is [available here](https://github.com/ksingh25/Files). Mostly firmware.bin is needed. One needs to flash ESP32 with this firmware. In this case one may skip the instructions 
 for compilation provided in this section.
 
 To compile micropython and test it on ESP32, please first install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf).
