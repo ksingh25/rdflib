@@ -158,7 +158,7 @@ Connect to ESP32 terminal:
 Connect ESP32 to WiFi and launch example_parse_foaf.py
 ```
 >>> execfile('wlan.py')
-network config: ('192.168.0.20', '255.255.255.0', '192.168.0.254', ...
+network config: ('192.168.0.20', '255.255.255.0', '192.168.0.254', '8.8.8.8')
 >>> execfile('example_parse_foaf.py')
 ...
 ```
