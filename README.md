@@ -141,6 +141,7 @@ On your PC `cd` to the folder containing foaf.n3 file and start the server:
 Now to the ESP32 (using picocom)
 
 Please put the ip address of the local pc (hosting modified foaf.n3) in the file example_parse_foaf.py and upload it to ESP32.
+
 `ampy --port /dev/ttyUSB0 --baud 115200 put example_parse_foaf.py`
 
 Connect to ESP32 terminal:
