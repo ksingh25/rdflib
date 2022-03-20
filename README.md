@@ -3,7 +3,7 @@ mRDFLib is a port of [RDFLib](https://github.com/RDFLib/rdflib) for micropython 
 It is a work in progress and the goal is to make the code as well as memory footprint as small as possible. 
 Currently XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not supported. 
 
-mRDFLib has been tested by compiling [micropython](https://github.com/micropython/micropython) on Linux and ESP32 (with 4MB PSRAM).
+mRDFLib has been tested by compiling [micropython](https://github.com/micropython/micropython) on Linux and ESP32 (with 4MB PSRAM for example esp32-one, ESP32 cam, ESP32-S3 with PSRAM etc).
 
 ## Prerequisites
 To test it quickly, one either needs linux with python3 or ESP32 with 4MB of SPIRAM. 
