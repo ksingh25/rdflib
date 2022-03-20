@@ -3,8 +3,6 @@ mRDFLib is a port of RDFLib for micropython for working with RDF.
 It is a work in progress and the idea is to make the code as small as possible. 
 Currently XML, isodate, Decimal (and thus _XSD_DECIMAL, _XSD_DATETIME, _XSD_DATE, etc.) are not supported. 
 
-# Quickstart
-
 mRDFLib has been tested by compiling micropython on Linux and ESP32 (with 4MB PSRAM).
 
 ## Prerequisites
@@ -100,10 +98,15 @@ On your PC:
 `sudo python -m SimpleHTTPServer 80`
 
 Now to the ESP32 (using picocom)
+
+Please put the ip address of the local pc hosting modified foaf.n3 in the file example_parse_foaf.py and upload it to ESP32.
+
 connect to WiFi
 ```
 >>> execfile('wlan.py')
 network config: ('192.168.0.20', '255.255.255.0', '192.168.0.254', '212.27.40.241')
+>>> execfile('example_parse_foaf.py')
+...
 ```
 This download the whole foaf.n3, parses it and prints the triples on the terminal.
 
