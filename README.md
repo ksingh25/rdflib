@@ -20,6 +20,7 @@ and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
 #define MICROPY_PY_URE_MATCH_GROUPS         (1)
 #define MICROPY_PY_URE_MATCH_SPAN_START_END (1)
 ```
+Then compile micropython
 
 ## ESP32
 To test it on ESP32, please install [IDF (tested with v4.0.2)](https://github.com/espressif/esp-idf), download [micropython code](https://github.com/micropython/micropython) 
@@ -36,13 +37,25 @@ Then to build MicroPython for the ESP32 run (assuming IDF is already installed):
 
 ```
 $ cd ports/esp32
+```
+modify mpconfigport.h and adding the following (after `#ifndef MICROPY_UNIX_MINIMAL` for example)
+
+```
+#define MICROPY_PY_URE_SUB 40
+#define MICROPY_PY_URE_MATCH_GROUPS         (1)
+#define MICROPY_PY_URE_MATCH_SPAN_START_END (1)
+```
+
+Then compile micropython firmware and flash the ESP32.
+
+```
 $ make submodules
 $ make BOARD=GENERIC_SPIRAM
 $ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 erase_flash
 $ idf.py -D MICROPY_BOARD=GENERIC_SPIRAM -B build-GENERIC_SPIRAM  -p /dev/ttyUSB0 -b 460800 flash`
 ```
 
-## Upload files on ESP32
+## Upload mRDFLib files on ESP32
 You may skip this step if you just need to test it on Linux with micropython.
 The step is to upload the files on ESP32. 
 ```
